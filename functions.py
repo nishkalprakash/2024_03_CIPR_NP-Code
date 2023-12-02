@@ -10,7 +10,12 @@ def ret_arr(triplet_array):
 
     def calc_log_ratio(x, y):
         # Calculate the log ratio of two numbers with base 2
-        return np.log2(np.abs(x / y))
+        val = np.log2(np.abs(x / y))
+        if val < -5:
+            return -5
+        if val > 5:
+            return 5
+        return val
     
     def calc_area(triplet):
         # Calculate the area of the triangle
@@ -32,13 +37,22 @@ def ret_arr(triplet_array):
         # input is triplet of points
         # calculate tan inverse of slope of edges
         # edge 1
-        m1 = (triplet[1][1] - triplet[0][1])/(triplet[1][0] - triplet[0][0])
+        if triplet[1][0] == triplet[0][0]:
+            m1 = float('inf')
+        else:
+            m1 = (triplet[1][1] - triplet[0][1])/(triplet[1][0] - triplet[0][0])
         theta1 = np.arctan(m1)
         # edge 2
-        m2 = (triplet[2][1] - triplet[1][1])/(triplet[2][0] - triplet[1][0])
+        if triplet[2][0] == triplet[1][0]:
+            m2 = float('inf')
+        else:
+            m2 = (triplet[2][1] - triplet[1][1])/(triplet[2][0] - triplet[1][0])
         theta2 = np.arctan(m2)
         # edge 3
-        m3 = (triplet[0][1] - triplet[2][1])/(triplet[0][0] - triplet[2][0])
+        if triplet[0][0] == triplet[2][0]:
+            m3 = float('inf')
+        else:
+            m3 = (triplet[0][1] - triplet[2][1])/(triplet[0][0] - triplet[2][0])
         theta3 = np.arctan(m3)
         return (theta1, theta2, theta3)
     
@@ -112,13 +126,17 @@ def ret_arr(triplet_array):
         triplet = build_tuple(line1, line2, line3)
         # calculate area
         area2 = calc_area2(triplet)
-        print(area2, area)
         # calculate log ratio
         log_ratio = calc_log_ratio(area2, area)
-        # calculate relative angle
-        rel_angle = calc_rel_angle(triplet_array[i])
-        # append to final_array
-        final_array.append([log_ratio, rel_angle[0], rel_angle[1], rel_angle[2]])
+
+        if log_ratio == 5 or log_ratio == -5:
+            continue
+
+        else:
+            # calculate relative angle
+            rel_angle = calc_rel_angle(triplet_array[i])
+            # append to final_array
+            final_array.append([log_ratio, rel_angle[0], rel_angle[1], rel_angle[2]])
 
     # sort the final_array
     final_array.sort()

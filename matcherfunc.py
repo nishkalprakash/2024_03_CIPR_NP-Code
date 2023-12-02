@@ -4,6 +4,24 @@
 import numpy as np
 import pandas as pd
 
+def find_next_index(array, flag):
+    # return an array that stores the indices in increasing absolute value of log ratio
+    # only indices of array needed are stored in flag array
+    # array is a list of elements with 5 parameters
+    # log ratio is second parameter
+
+    list1 = []
+    for i in range(len(flag)):
+        list1.append([flag[i], array[flag[i]][1]])
+    list1.sort(key=lambda x: abs(x[1]))
+
+    list2 = []
+    for i in range(len(list1)):
+        list2.append(list1[i][0])
+    
+    return list2
+
+
 def check_name(name1, name2):
     # split name1 and name2 into tokens based on '_'
     # check if all tokens except the last one are the same
@@ -21,15 +39,6 @@ def check_name(name1, name2):
 
 
 def combine_dataframes(df1, df2):
-    df1 = df1.values.tolist()
-    df2 = df2.values.tolist()
-
-    # create a combined list with the following columns:
-    # flag, log ratio, theta 1, theta 2, theta 3
-    # flag = 0 if the row is from df1, 1 if the row is from df2
-
-    # keep a list of elements with flag = 0
-
     length = len(df1)
     length2 = len(df2)
 

@@ -1,6 +1,6 @@
 desktop.ini
 FVC2002.lnk
-
+Debug/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
