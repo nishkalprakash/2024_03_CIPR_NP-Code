@@ -77,7 +77,7 @@ def calculate_f1_score(similarity_array, threshold1, threshold2):
         f1_score = calc_f1_score(tp, tn, fp, fn)
         if f1_score > f1:
             f1 = f1_score
-            return [threshold1, threshold2, i * 2, f1]
+    return [threshold1, threshold2, i, f1]
 
 def calculate_MCC_score(similarity_array, threshold1, threshold2):
     # MCC is defined as (TP*TN - FP*FN)/sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))
@@ -100,4 +100,4 @@ def calculate_MCC_score(similarity_array, threshold1, threshold2):
         MCC_score = calc_MCC_score(tp, tn, fp, fn)
         if MCC_score > MCC:
             MCC = MCC_score
-            return [threshold1, threshold2, i * 2, MCC]
+    return [threshold1, threshold2, i, MCC]
