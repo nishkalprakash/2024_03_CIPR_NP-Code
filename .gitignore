@@ -1,7 +1,11 @@
+desktop.ini
+FVC2002.lnk
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
 
 # C extensions
 *.so

@@ -1,0 +1,11 @@
+
+name: cipr
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas      # numpy included in this
+  - matplotlib
+  - scipy
+  - ipykernel   # optional for vscode
+
