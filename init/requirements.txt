@@ -1,6 +1,10 @@
 pandas
 numpy
+
+# For plotting
 matplotlib
+
+# For interactive plotting
 plotly
 ipywidgets
 nbformat
