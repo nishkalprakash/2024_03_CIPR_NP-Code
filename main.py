@@ -36,11 +36,12 @@ if __name__ == '__main__':
     # define arrays to store far_score and frr_score
     far_score = []
     frr_score = []
-
+    T1 = [0.0,4.0,0.1]
+    T2 = [0.0,4.0,0.1]
     def gen():
         threshold = (
-            (i,j) for i in np.arange(0.0,1.0,0.01) 
-                  for j in np.arange(0.0,1.0,0.01)
+            (i,j) for i in np.arange(*t1)
+                  for j in np.arange(*t2)
         )
 
         # for i in range(100):
@@ -50,7 +51,7 @@ if __name__ == '__main__':
                 # b = threshold[100 * i + j][1]
             yield a, b, fea
 
-    out_file = Path("output_eer_T1[0,1]_T2[0,1]_0.01.csv")
+    out_file = Path(f"output_eer_T1[{T1[0]:0.1f},{T1[1]:0.1f}]_T2[{T2[0]:0.1f},{T2[1]:0.1f}]_{T1[2]:0.2f}.csv")
     with Pool(cpu_count()-1) as p:
         # start = time.time()
         print("Starting parallel computation")
