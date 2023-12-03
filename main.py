@@ -51,20 +51,22 @@ if __name__ == '__main__':
                 # b = threshold[100 * i + j][1]
             yield a, b, fea
 
-    out_file = Path(f"output_eer_T1[{T1[0]:0.1f},{T1[1]:0.1f}]_T2[{T2[0]:0.1f},{T2[1]:0.1f}]_{T1[2]:0.2f}.csv")
+    out_file = Path(f"output_eer_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
     with Pool(cpu_count()-1) as p:
         # start = time.time()
         print("Starting parallel computation")
         print("Number of processors: ", cpu_count()-1)
-        head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER\n"
+        # head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER\n"
+        head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
         print(head.replace(",", "\t\t"))
         with out_file.open('a') as f:
             f.write(head)
-        for t1,t2,far_sc, frr_sc,eer in p.imap_unordered(parallel_compute, gen(),10):
+        for t1,t2,far_sc, frr_sc in p.imap_unordered(parallel_compute, gen(),10):
             #  = x
             far_score.append(far_sc)
             frr_score.append(frr_sc)
-            row = f"{t1:.2f},{t2:.2f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
+            # row = f"{t1:.2f},{t2:.2f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
+            row = f"{t1:.2f},{t2:.3f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f}\n"
             print(row.replace(",","\t\t"),end="")
             with out_file.open('a') as f:
                 f.write(row)
