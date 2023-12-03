@@ -23,7 +23,7 @@ def preprocess(array):
     cumulative_true = []
     n = 0
     for i in range(true_length):
-        if n > 80:
+        if n > 100:
             break
         while trarr[i] <= n:
             i += 1
@@ -36,7 +36,7 @@ def preprocess(array):
     cumulative_false = []
     n = 0
     for i in range(false_length):
-        if n > 80:
+        if n > 100:
             break
         while faarr[i] <= n:
             i += 1
@@ -59,13 +59,7 @@ def calculate_far(similarity_array, threshold1, threshold2):
 
     def calc_far(tp, tn, fp, fn):
         # https://www.dicorm.com.my/post/demystifying-far-and-frr#:~:text=You%20calculate%20the%20FAR%20and,of%20true%20positives)%20x%20100
-        # return 1 - calc_precision(tp, tn, fp, fn)
         return fp/(tn+fp)
-        # pre = calc_precision(tp, tn, fp, fn)
-        # rec = calc_recall(tp, tn, fp, fn)
-        # if pre == 0 or rec == 0:
-        #     return 0
-        # return 2 * pre * rec / (pre + rec)
     
     cumulative_true, cumulative_false, true_length, false_length = preprocess(similarity_array)
 
@@ -73,7 +67,7 @@ def calculate_far(similarity_array, threshold1, threshold2):
     f1 = 0
     threshold = 0
     # store conditions when f1 score is maximum
-    for i in range(0, 81):
+    for i in range(0, 101):
         fn = cumulative_true[i]
         tn = cumulative_false[i]
         fp = false_length - tn
@@ -90,10 +84,6 @@ def calculate_frr(similarity_array, threshold1, threshold2):
     def calc_frr(tp, tn, fp, fn):
         frr = fn/(tp+fn)
         return frr
-        # rec = calc_recall(tp, tn, fp, fn)
-        # if pre == 0 or rec == 0:
-        #     return 0
-        # return 2 * pre * rec / (pre + rec)
     
     cumulative_true, cumulative_false, true_length, false_length = preprocess(similarity_array)
 
@@ -101,7 +91,7 @@ def calculate_frr(similarity_array, threshold1, threshold2):
     f1 = 0
     threshold = 0
     # store conditions when f1 score is maximum
-    for i in range(0, 81):
+    for i in range(0, 101):
         fn = cumulative_true[i]
         tn = cumulative_false[i]
         fp = false_length - tn
@@ -127,7 +117,7 @@ def calculate_f1_score(similarity_array, threshold1, threshold2):
     f1 = 0
     threshold = 0
     # store conditions when f1 score is maximum
-    for i in range(0, 81):
+    for i in range(0, 101):
         fn = cumulative_true[i]
         tn = cumulative_false[i]
         fp = false_length - tn
@@ -153,7 +143,7 @@ def calculate_MCC_score(similarity_array, threshold1, threshold2):
     MCC = 0
     threshold = 0
     # store conditions when MCC score is maximum
-    for i in range(0, 81):
+    for i in range(0, 101):
         fn = cumulative_true[i]
         tn = cumulative_false[i]
         fp = false_length - tn
