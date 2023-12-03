@@ -40,12 +40,12 @@ if __name__ == '__main__':
                 b = threshold[100 * i + j][1]
                 yield a, b, fea
 
-    out_file = Path("output.txt")
+    out_file = Path("output_eer_frr_far.txt")
     with Pool(cpu_count()-1) as p:
         # start = time.time()
         print("Starting parallel computation")
         print("Number of processors: ", cpu_count()-1)
-        head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
+        head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER_T,EER\n"
         print("\t"+head.replace(",", "\t\t"))
         with out_file.open('a') as f:
             f.write(head)

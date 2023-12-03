@@ -54,6 +54,60 @@ def calc_recall(tp, tn, fp, fn):
         return 0
     return tp / (tp + fn)
 
+def calculate_far(similarity_array, threshold1, threshold2):
+
+    def calc_far(tp, tn, fp, fn):
+        return 1 - calc_precision(tp, tn, fp, fn)
+        # pre = calc_precision(tp, tn, fp, fn)
+        # rec = calc_recall(tp, tn, fp, fn)
+        # if pre == 0 or rec == 0:
+        #     return 0
+        # return 2 * pre * rec / (pre + rec)
+    
+    cumulative_true, cumulative_false, true_length, false_length = preprocess(similarity_array)
+
+    # maximize f1 score
+    f1 = 0
+    threshold = 0
+    # store conditions when f1 score is maximum
+    for i in range(0, 81):
+        fn = cumulative_true[i]
+        tn = cumulative_false[i]
+        fp = false_length - tn
+        tp = true_length - fn
+        # print(tp, tn, fp, fn)
+        f1_score = calc_far(tp, tn, fp, fn)
+        if f1_score > f1:
+            f1 = f1_score
+            threshold = i
+    return [threshold1, threshold2, threshold, f1]
+
+def calculate_frr(similarity_array, threshold1, threshold2):
+
+    def calc_frr(tp, tn, fp, fn):
+        frr = fn/(tp + tn + fp + fn)
+        # rec = calc_recall(tp, tn, fp, fn)
+        # if pre == 0 or rec == 0:
+        #     return 0
+        # return 2 * pre * rec / (pre + rec)
+    
+    cumulative_true, cumulative_false, true_length, false_length = preprocess(similarity_array)
+
+    # maximize f1 score
+    f1 = 0
+    threshold = 0
+    # store conditions when f1 score is maximum
+    for i in range(0, 81):
+        fn = cumulative_true[i]
+        tn = cumulative_false[i]
+        fp = false_length - tn
+        tp = true_length - fn
+        # print(tp, tn, fp, fn)
+        f1_score = calc_frr(tp, tn, fp, fn)
+        if f1_score > f1:
+            f1 = f1_score
+            threshold = i
+    return [threshold1, threshold2, threshold, f1]
 def calculate_f1_score(similarity_array, threshold1, threshold2):
 
     def calc_f1_score(tp, tn, fp, fn):
