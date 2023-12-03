@@ -42,13 +42,13 @@ if __name__ == '__main__':
                 # b = threshold[100 * i + j][1]
             yield a, b, fea
 
-    out_file = Path("output_t1[1-3]_t2[0-0.2].csv")
+    out_file = Path("output_eer_frr_far.txt")
     with Pool(cpu_count()-1) as p:
         # start = time.time()
         print("Starting parallel computation")
         print("Number of processors: ", cpu_count()-1)
-        head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
-        print(head.replace(",", "\t\t"))
+        head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER_T,EER\n"
+        print("\t"+head.replace(",", "\t\t"))
         with out_file.open('a') as f:
             f.write(head)
         for t1,t2,f1_sc, mcc_sc in p.imap_unordered(parallel_compute, gen(),10):
