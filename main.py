@@ -36,12 +36,12 @@ if __name__ == '__main__':
     # define arrays to store far_score and frr_score
     far_score = []
     frr_score = []
-    T1 = [0.0,4.0,0.1]
-    T2 = [0.0,4.0,0.1]
+    T1 = [0.8,1,.01]
+    T2 = [0.08,0.1,0.001]
     def gen():
         threshold = (
-            (i,j) for i in np.arange(*t1)
-                  for j in np.arange(*t2)
+            (i,j) for i in np.arange(*T1)
+                  for j in np.arange(*T2)
         )
 
         # for i in range(100):
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         print(head.replace(",", "\t\t"))
         with out_file.open('a') as f:
             f.write(head)
-        for t1,t2,far_sc, frr_sc,eer in p.imap_unordered(parallel_compute_eer, gen(),10):
+        for t1,t2,far_sc, frr_sc,eer in p.imap_unordered(parallel_compute, gen(),10):
             #  = x
             far_score.append(far_sc)
             frr_score.append(frr_sc)
