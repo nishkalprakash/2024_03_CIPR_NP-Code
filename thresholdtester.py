@@ -58,7 +58,9 @@ def calc_recall(tp, tn, fp, fn):
 def calculate_far(similarity_array, threshold1, threshold2):
 
     def calc_far(tp, tn, fp, fn):
-        return 1 - calc_precision(tp, tn, fp, fn)
+        # https://www.dicorm.com.my/post/demystifying-far-and-frr#:~:text=You%20calculate%20the%20FAR%20and,of%20true%20positives)%20x%20100
+        # return 1 - calc_precision(tp, tn, fp, fn)
+        return fp/(tn+fp)
         # pre = calc_precision(tp, tn, fp, fn)
         # rec = calc_recall(tp, tn, fp, fn)
         # if pre == 0 or rec == 0:
@@ -86,7 +88,8 @@ def calculate_far(similarity_array, threshold1, threshold2):
 def calculate_frr(similarity_array, threshold1, threshold2):
 
     def calc_frr(tp, tn, fp, fn):
-        frr = fn/(tp + tn + fp + fn)
+        frr = fn/(tp+fn)
+        return frr
         # rec = calc_recall(tp, tn, fp, fn)
         # if pre == 0 or rec == 0:
         #     return 0
