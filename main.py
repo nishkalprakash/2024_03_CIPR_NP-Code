@@ -63,7 +63,7 @@ if __name__ == '__main__':
             #  = x
             far_score.append(far_sc)
             frr_score.append(frr_sc)
-            row = f"{t1:.2f},{t2:.2f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer:0.2f}\n"
+            row = f"{t1:.2f},{t2:.2f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
             print(row.replace(",","\t\t"),end="")
             with out_file.open('a') as f:
                 f.write(row)
