@@ -16,6 +16,7 @@ def preprocess(array):
     trarr.sort()
     faarr.sort()
 
+    
     # find the values at which score is n for both arrays and report (index + 1) / len(array) for both arrays
     # n in range 2o to 80
     true_length = len(trarr)
