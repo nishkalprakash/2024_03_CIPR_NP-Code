@@ -13,7 +13,7 @@ def match(db_array, threshold1, threshold2):
     # score is percentage matching of two vector arrays
     # flag is True if instance of same fingerprint, false otherwise
     similarity_array = []
-
+    # TODO: Update genuine pairs logic, imposter pair logic...
     # iterate through all combinations of fingerprints
     for i in range(n):
         for j in range(i+1, n):

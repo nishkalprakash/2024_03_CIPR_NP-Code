@@ -15,13 +15,11 @@ def parallel_compute(data):
     f1_sc = tt.calculate_f1_score(similarity_matrix, a, b)
     mcc_sc = tt.calculate_MCC_score(similarity_matrix, a, b)
     return a,b,f1_sc, mcc_sc
-def parallel_compute_eer(data):
 
-    a,b,fea = data
-    similarity_matrix = mc.match(fea, a, b)
-    far_sc = tt.calculate_far(similarity_matrix, a, b)
-    frr_sc = tt.calculate_frr(similarity_matrix, a, b)
-    return a,b,far_sc, frr_sc, (frr_sc[3] + far_sc[3])/2
+def parallel_compute_eer(t1_t2_fea):
+    t1, t2, fea = t1_t2_fea
+    similarity_matrix = mc.match(fea, t1, t2)
+    return tt.calculate_far_frr_score(similarity_matrix, t1, t2)
 
 
 
@@ -33,7 +31,6 @@ def calc_f1(T1,T2,fea):
         # start = time.time()
         print("Starting parallel computation")
         print("Number of processors: ", cpu_count()-1)
-        # head= "T1,T2,f1_T,FAR,mcc_T,FRR,EER\n"
         head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
         print(head.replace(",", "\t\t"))
         with out_file.open('a') as f:
@@ -41,30 +38,43 @@ def calc_f1(T1,T2,fea):
         for t1,t2,f1_sc, mcc_sc in p.imap_unordered(parallel_compute, gen(T1,T2,fea),10):
             f1_score.append(f1_sc)
             mcc_score.append(mcc_sc)
-            # row = f"{t1:.2f},{t2:.2f},{f1_sc[2]:.0f},{f1_sc[3]*100:.2f},{mcc_sc[2]:.0f},{mcc_sc[3]*100:.2f},{eer*100:0.2f}\n"
             row = f"{t1:.2f},{t2:.3f},{f1_sc[2]:.0f},{f1_sc[3]*100:.2f},{mcc_sc[2]:.0f},{mcc_sc[3]*100:.2f}\n"
             print(row.replace(",","\t\t"),end="")
             with out_file.open('a') as f:
                 f.write(row)
 
-def calc_eer(T1,T2,fea):
+def calc_eer(T1,T2,fea,debug=False):
     far_score = []
     frr_score = []
     out_file = Path(f"output_eer_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
-    with Pool(cpu_count()-1) as p:
-        print("Starting parallel computation")
-        print("Number of processors: ", cpu_count()-1)
-        head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER\n"
-        print(head.replace(",", "\t\t"))
+    
+    head= "T1,T2,T3,FAR,FRR,EER\n"
+    with out_file.open('w') as f:
+        f.write(head)
+
+    def write_row(t1_t2_t3_far_frr_eer):
+        t1,t2,t3, far, frr, eer = t1_t2_t3_far_frr_eer
+        row = f"{t1:.2f},{t2:.2f},{t3:.0f},{far*100:.2f},{frr*100:.2f},{eer*100:0.2f}\n"
+        print(row.replace(",","\t\t"),end="")
         with out_file.open('a') as f:
-            f.write(head)
-        for t1,t2,far_sc, frr_sc, eer in p.imap_unordered(parallel_compute_eer, gen(T1,T2,fea),10):
-            far_score.append(far_sc)
-            frr_score.append(frr_sc)
-            row = f"{t1:.2f},{t2:.2f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
-            print(row.replace(",","\t\t"),end="")
-            with out_file.open('a') as f:
                 f.write(row)
+
+    if debug:
+        # Run in single core
+        print("Starting serial computation")
+        print("Number of processors: ", 1)
+        print(head.replace(",", "\t\t"))
+        for t1_t2_fea in gen(T1,T2,fea):
+            write_row(parallel_compute_eer(t1_t2_fea))
+        
+    else:
+        # run in parallel cores
+        with Pool(cpu_count()-1) as p:
+            print("Starting parallel computation")
+            print("Number of processors: ", cpu_count()-1)
+            print(head.replace(",", "\t\t"))
+            for t1_t2_t3_far_frr_eer in p.imap_unordered(parallel_compute_eer, gen(T1,T2,fea),10):
+                write_row(t1_t2_t3_far_frr_eer)
 
 def gen(T1,T2,fea):
         threshold = (
@@ -80,7 +90,7 @@ if __name__ == '__main__':
     json_files = [r'Datasets\anguli_10_100_fingernet.json']
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
-    T1 = (0.0,1.0,0.1)
-    T2 = (0.0,1.0,0.1)
+    T1 = (0.0,1.0,0.01)
+    T2 = (0.06,0.12,0.001)
     # calc_f1(T1,T2,fea)
-    calc_eer(T1,T2,fea)
+    calc_eer(T1,T2,fea,debug=True)
