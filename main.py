@@ -93,4 +93,4 @@ if __name__ == '__main__':
     T1 = (0.0,1.0,0.01)
     T2 = (0.06,0.12,0.001)
     # calc_f1(T1,T2,fea)
-    calc_eer(T1,T2,fea,debug=True)
+    calc_eer(T1,T2,fea,debug=False)

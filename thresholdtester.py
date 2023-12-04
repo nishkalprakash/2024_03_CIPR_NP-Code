@@ -20,10 +20,15 @@ def preprocess(array):
 
     
     # find the values at which score is n for both arrays and report (index + 1) / len(array) for both arrays
-    # n in range 2o to 80
+    # n in range 0 to 100
     true_length = len(trarr)
     cumulative_true = []
     n = 0
+    # TODO: fix this for the required logic for cumulative array creation
+    # for ci in range(100):
+    #     cumulative_true.append()
+
+
     for i in range(true_length):
         if n > 100:
             break
@@ -31,6 +36,8 @@ def preprocess(array):
             i += 1
             if i >= len(trarr):
                 break
+        # for j in    
+        # TODO: fix this 
         cumulative_true.append(i)
         n += 1
 
