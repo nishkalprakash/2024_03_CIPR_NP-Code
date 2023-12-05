@@ -15,67 +15,87 @@ def parallel_compute(data):
     f1_sc = tt.calculate_f1_score(similarity_matrix, a, b)
     mcc_sc = tt.calculate_MCC_score(similarity_matrix, a, b)
     return a,b,f1_sc, mcc_sc
-def parallel_compute_eer(data):
 
-    a,b,fea = data
-    similarity_matrix = mc.match(fea, a, b)
-    far_sc = tt.calculate_far(similarity_matrix, a, b)
-    frr_sc = tt.calculate_frr(similarity_matrix, a, b)
-    return a,b,far_sc, frr_sc, (frr_sc[3] + far_sc[3])/2
+def parallel_compute_eer(t1_t2_fea):
+    t1, t2, fea = t1_t2_fea
+    similarity_matrix = mc.match(fea, t1, t2)
+    """
+    @nishkalprakash
+    call calculate_block_far_frr_score for 1%
+    call calculate_grain_far_frr_score for 0.1%
+    """
+    return tt.calculate_block_far_frr_score(similarity_matrix, t1, t2)
 
-if __name__ == '__main__':
-    from pathlib import Path
-    json_files = ['Datasets/FVC2002_DB1_A_fingernet.json']
-    df = pd.read_json(json_files[0],orient='records')
-    fea = gf.generatefeatures(df)
-    # threshold = zip(np.arange(0.0,1.0,0.1),np.arange(0.0,1.0,0.1))
-    
-    # for i in range(1,3,0.01):
-    #     for j in range(5,16):
-    #         threshold.append([i/100+1, j/100])
-    # define arrays to store far_score and frr_score
-    far_score = []
-    frr_score = []
-    T1 = [0.8,1,.01]
-    T2 = [0.08,0.1,0.001]
-    def gen():
-        threshold = (
-            (i,j) for i in np.arange(*T1)
-                  for j in np.arange(*T2)
-        )
 
-        # for i in range(100):
-            # for j in range(100):
-        for a,b in threshold:
-                # a = threshold[100 * i + j][0]
-                # b = threshold[100 * i + j][1]
-            yield a, b, fea
 
-    out_file = Path(f"output_eer_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
+def calc_f1(T1,T2,fea):
+    f1_score = []
+    mcc_score = []
+    out_file = Path(f"output_f1_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
     with Pool(cpu_count()-1) as p:
         # start = time.time()
         print("Starting parallel computation")
         print("Number of processors: ", cpu_count()-1)
-        head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER\n"
-        # head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
+        head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
         print(head.replace(",", "\t\t"))
         with out_file.open('a') as f:
             f.write(head)
-        for t1,t2,far_sc, frr_sc, eer in p.imap_unordered(parallel_compute_eer, gen(),10):
-            #  = x
-            far_score.append(far_sc)
-            frr_score.append(frr_sc)
-            row = f"{t1:.2f},{t2:.3f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
-            # row = f"{T1:.2f},{T2:.3f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f}\n"
+        for t1,t2,f1_sc, mcc_sc in p.imap_unordered(parallel_compute, gen(T1,T2,fea),10):
+            f1_score.append(f1_sc)
+            mcc_score.append(mcc_sc)
+            row = f"{t1:.2f},{t2:.3f},{f1_sc[2]:.0f},{f1_sc[3]*100:.2f},{mcc_sc[2]:.0f},{mcc_sc[3]*100:.2f}\n"
             print(row.replace(",","\t\t"),end="")
             with out_file.open('a') as f:
                 f.write(row)
+
+def calc_eer(T1,T2,fea,debug=False):
+    far_score = []
+    frr_score = []
+    out_file = Path(f"output_eer_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
+    
+    head= "T1,T2,T3,FAR,FRR,EER\n"
+    with out_file.open('w') as f:
+        f.write(head)
+
+    def write_row(t1_t2_t3_far_frr_eer):
+        t1,t2,t3, far, frr, eer = t1_t2_t3_far_frr_eer
+        row = f"{t1:.2f},{t2:.2f},{t3:.0f},{far*100:.2f},{frr*100:.2f},{eer*100:0.2f}\n"
+        print(row.replace(",","\t\t"),end="")
+        with out_file.open('a') as f:
+                f.write(row)
+
+    if debug:
+        # Run in single core
+        print("Starting serial computation")
+        print("Number of processors: ", 1)
+        print(head.replace(",", "\t\t"))
+        for t1_t2_fea in gen(T1,T2,fea):
+            write_row(parallel_compute_eer(t1_t2_fea))
         
-# loop over all threshold values
-# also print threshold values and iteration number in a table format
-    # print("Threshold 1 \t Threshold 2 \t Iteration")
-    # for i in range(100):
-        # for j in range(100):
-            
-            # print threshold values and iteration number in a table format
-            # print("{0:.2f}".format(a), ",", "{0:.2f}".format(b), "\t\t", 100 * i + j)
+    else:
+        # run in parallel cores
+        with Pool(cpu_count()-1) as p:
+            print("Starting parallel computation")
+            print("Number of processors: ", cpu_count()-1)
+            print(head.replace(",", "\t\t"))
+            for t1_t2_t3_far_frr_eer in p.imap_unordered(parallel_compute_eer, gen(T1,T2,fea),10):
+                write_row(t1_t2_t3_far_frr_eer)
+
+def gen(T1,T2,fea):
+        threshold = (
+            (i,j) for i in np.arange(*T1)
+                  for j in np.arange(*T2)
+        )
+        
+        for a,b in threshold:
+            yield a, b, fea
+
+if __name__ == '__main__':
+    from pathlib import Path
+    json_files = [r'Datasets\anguli_10_100_fingernet.json']
+    df = pd.read_json(json_files[0],orient='records')
+    fea = gf.generatefeatures(df)
+    T1 = (0.0,1.0,0.01)
+    T2 = (0.06,0.12,0.001)
+    # calc_f1(T1,T2,fea)
+    calc_eer(T1,T2,fea,debug=False)
