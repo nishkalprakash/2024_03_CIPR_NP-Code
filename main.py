@@ -16,8 +16,8 @@ def parallel_compute(data):
     mcc_sc = tt.calculate_MCC_score(similarity_matrix, a, b)
     return a,b,f1_sc, mcc_sc
 
-def parallel_compute_eer(t1_t2_fea):
-    t1, t2, fea = t1_t2_fea
+def parallel_compute_eer(t1_t2_fea_gr):
+    t1, t2, fea, gr = t1_t2_fea_gr
     similarity_matrix = mc.match(fea, t1, t2)
     """
     @nishkalprakash
@@ -27,7 +27,7 @@ def parallel_compute_eer(t1_t2_fea):
     call calculate_far_frr_score(gr=1) for 1%
     call calculate_far_frr_score(gr=0.1) for 0.1%
     """
-    return tt.calculate_far_frr_score(similarity_matrix, t1, t2, gr=0.1) # gr = 1 | 0.1
+    return tt.calculate_far_frr_score(similarity_matrix, t1, t2, gr) # gr = 1 | 0.1
 
 
 
@@ -51,9 +51,9 @@ def calc_f1(T1,T2,fea):
             with out_file.open('a') as f:
                 f.write(row)
 
-def calc_eer(T1,T2,fea,debug=False):
-    far_score = []
-    frr_score = []
+def calc_eer(T1,T2,fea,gr=1,debug=False):
+    # far_score = []
+    # frr_score = []
     out_file = Path(f"output_eer_T1[{T1[0]:0.3f},{T1[1]:0.3f},{T1[2]:0.3f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
     
     head= "T1,T2,T3,FAR,FRR,EER\n"
@@ -72,8 +72,8 @@ def calc_eer(T1,T2,fea,debug=False):
         print("Starting serial computation")
         print("Number of processors: ", 1)
         print(head.replace(",", "\t\t"))
-        for t1_t2_fea in gen(T1,T2,fea):
-            write_row(parallel_compute_eer(t1_t2_fea))
+        for t1_t2_fea_gr in gen(T1,T2,fea,gr):
+            write_row(parallel_compute_eer(t1_t2_fea_gr))
         
     else:
         # run in parallel cores
@@ -81,24 +81,25 @@ def calc_eer(T1,T2,fea,debug=False):
             print("Starting parallel computation")
             print("Number of processors: ", cpu_count()-1)
             print(head.replace(",", "\t\t"))
-            for t1_t2_t3_far_frr_eer in p.imap_unordered(parallel_compute_eer, gen(T1,T2,fea),10):
+            for t1_t2_t3_far_frr_eer in p.imap(parallel_compute_eer, gen(T1,T2,fea,gr)):
                 write_row(t1_t2_t3_far_frr_eer)
 
-def gen(T1,T2,fea):
+def gen(T1_range,T2_range,fea,gr=1):
         threshold = (
-            (i,j) for i in np.arange(*T1)
-                  for j in np.arange(*T2)
+            (i,j) for i in np.arange(*T1_range)
+                  for j in np.arange(*T2_range)
         )
         
-        for a,b in threshold:
-            yield a, b, fea
+        for T1,T2 in threshold:
+            yield T1, T2, fea, gr
 
 if __name__ == '__main__':
     from pathlib import Path
     json_files = [r'Datasets\anguli_10_100_fingernet.json']
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
-    T1_range = (0.4,0.41,0.1)
-    T2_range = (0.07,0.12,0.001)
+    T1_range = (0.1,1,0.1)
+    T2_range = (0.01,1,0.1)
     # calc_f1(T1,T2,fea)
-    calc_eer(T1_range,T2_range,fea,debug=True)
+    gr = 0.1
+    calc_eer(T1_range,T2_range,fea,gr,debug=False)
