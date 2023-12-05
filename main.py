@@ -56,17 +56,17 @@ if __name__ == '__main__':
         # start = time.time()
         print("Starting parallel computation")
         print("Number of processors: ", cpu_count()-1)
-        # head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER\n"
-        head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
+        head= "T1,T2,FAR_T,FAR,FRR_T,FRR,EER\n"
+        # head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
         print(head.replace(",", "\t\t"))
         with out_file.open('a') as f:
             f.write(head)
-        for t1,t2,far_sc, frr_sc in p.imap_unordered(parallel_compute, gen(),10):
+        for t1,t2,far_sc, frr_sc, eer in p.imap_unordered(parallel_compute_eer, gen(),10):
             #  = x
             far_score.append(far_sc)
             frr_score.append(frr_sc)
-            # row = f"{t1:.2f},{t2:.2f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
-            row = f"{t1:.2f},{t2:.3f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f}\n"
+            row = f"{t1:.2f},{t2:.3f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f},{eer*100:0.2f}\n"
+            # row = f"{T1:.2f},{T2:.3f},{far_sc[2]:.0f},{far_sc[3]*100:.2f},{frr_sc[2]:.0f},{frr_sc[3]*100:.2f}\n"
             print(row.replace(",","\t\t"),end="")
             with out_file.open('a') as f:
                 f.write(row)
