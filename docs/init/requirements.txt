@@ -1,6 +1,9 @@
 pandas
 numpy
 
+# for triangulation
+scipy
+
 # For plotting
 matplotlib
 

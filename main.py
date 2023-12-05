@@ -27,7 +27,7 @@ def parallel_compute_eer(t1_t2_fea):
     call calculate_far_frr_score(gr=1) for 1%
     call calculate_far_frr_score(gr=0.1) for 0.1%
     """
-    return tt.calculate_far_frr_score(similarity_matrix, t1, t2, gr=1) # gr = 1 | 0.1
+    return tt.calculate_far_frr_score(similarity_matrix, t1, t2, gr=0.1) # gr = 1 | 0.1
 
 
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     json_files = [r'Datasets\anguli_10_100_fingernet.json']
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
-    T1 = (0.0,1.0,0.01)
-    T2 = (0.06,0.12,0.001)
+    T1_range = (0.4,0.41,0.1)
+    T2_range = (0.07,0.12,0.001)
     # calc_f1(T1,T2,fea)
-    calc_eer(T1,T2,fea,debug=False)
+    calc_eer(T1_range,T2_range,fea,debug=True)

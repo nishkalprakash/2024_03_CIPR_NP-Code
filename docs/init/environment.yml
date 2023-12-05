@@ -2,10 +2,14 @@
 name: cipr
 channels:
   - defaults
+  - plotly
 dependencies:
-  - python=3.10
+  - python
   - pandas      # numpy included in this
   - matplotlib
   - scipy
   - ipykernel   # optional for vscode
+  - plotly
+  - ipywidgets
+  - nbformat
 

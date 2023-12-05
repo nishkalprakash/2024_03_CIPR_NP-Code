@@ -31,19 +31,25 @@ def traverse(array,gr=1):
         # find the values at which score is n for both arrays and report (index + 1) / len(array) for both arrays
         # c_arr_l in range 0 to (100//gr)
         cumulative_arr = []
-        c_arr_l = 100//gr
-        c_arr_ptr = 0
+        c_arr_l = int(100/gr)
+        arr_ptr,c_arr_ptr = 0,0
         arr_l = len(array)
-        for arr_ptr in range(arr_l):
+        while arr_ptr < arr_l:
+            # for arr_ptr in range(arr_l):
             if c_arr_ptr > c_arr_l: # if c_arr_ptr is greater than limit, break
                 break
             while array[arr_ptr] <= c_arr_ptr*gr:
                 arr_ptr += 1
                 if arr_ptr >= arr_l:
                     break
-            while c_arr_ptr*gr < array[arr_ptr]:
-                cumulative_arr.append(arr_ptr)
-                c_arr_ptr += 1
+            if arr_ptr < arr_l:
+                while c_arr_ptr*gr < array[arr_ptr]:
+                    cumulative_arr.append(arr_ptr)
+                    c_arr_ptr += 1
+        # here there is no more elements in array, so complete the cumulative array to lenth c_arr_l
+        while c_arr_ptr<c_arr_l:
+            cumulative_arr.append(arr_l)
+            c_arr_ptr += 1
         return cumulative_arr
     true_array, false_array = preprocess(array)
     true_length = len(true_array)
@@ -174,7 +180,7 @@ def calculate_far_frr_score(similarity_array, t1, t2, gr=1):
     t3 = 0
     far_opt, frr_opt = 0, 0
     # store conditions when f1 score is maximum
-    for i in range(0, (100//gr)+1):
+    for i in range(0, int(100/gr)+1):
         fn = cumulative_true[i]
         tn = cumulative_false[i]
         fp = false_length - tn
