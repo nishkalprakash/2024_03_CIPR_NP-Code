@@ -99,7 +99,7 @@ if __name__ == '__main__':
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
     T1_range = (0.1,1,0.1)
-    T2_range = (0.01,1,0.1)
+    T2_range = (0.01,0.2,0.01)
     # calc_f1(T1,T2,fea)
     gr = 0.1
     calc_eer(T1_range,T2_range,fea,gr,debug=False)

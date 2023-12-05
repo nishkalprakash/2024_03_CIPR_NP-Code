@@ -47,7 +47,7 @@ def traverse(array,gr=1):
                     cumulative_arr.append(arr_ptr)
                     c_arr_ptr += 1
         # here there is no more elements in array, so complete the cumulative array to lenth c_arr_l
-        while c_arr_ptr<c_arr_l:
+        while c_arr_ptr<=c_arr_l:
             cumulative_arr.append(arr_l)
             c_arr_ptr += 1
         return cumulative_arr
