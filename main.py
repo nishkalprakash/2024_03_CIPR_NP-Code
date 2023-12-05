@@ -54,7 +54,7 @@ def calc_f1(T1,T2,fea):
 def calc_eer(T1,T2,fea,gr=1,debug=False):
     # far_score = []
     # frr_score = []
-    out_file = Path(f"output_eer_T1[{T1[0]:0.3f},{T1[1]:0.3f},{T1[2]:0.3f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
+    out_file = Path(f"output_eer_T1[{T1[0]:0.3f},{T1[1]:0.3f},{T1[2]:0.3f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T2[2]:0.3f}].csv")
     
     head= "T1,T2,T3,FAR,FRR,EER\n"
     with out_file.open('w') as f:
@@ -62,7 +62,7 @@ def calc_eer(T1,T2,fea,gr=1,debug=False):
 
     def write_row(t1_t2_t3_far_frr_eer):
         t1,t2,t3, far, frr, eer = t1_t2_t3_far_frr_eer
-        row = f"{t1:.2f},{t2:.2f},{t3:.0f},{far*100:.2f},{frr*100:.2f},{eer*100:0.2f}\n"
+        row = f"{t1:.3f},{t2:.3f},{t3:.0f},{far*100:.2f},{frr*100:.2f},{eer*100:0.2f}\n"
         print(row.replace(",","\t\t"),end="")
         with out_file.open('a') as f:
                 f.write(row)
@@ -98,8 +98,8 @@ if __name__ == '__main__':
     json_files = [r'Datasets\anguli_10_100_fingernet.json']
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
-    T1_range = (0.1,1,0.1)
-    T2_range = (0.01,0.2,0.01)
+    T1_range = (0.1,1.4,0.1)
+    T2_range = (0.02,0.12,0.001)
     # calc_f1(T1,T2,fea)
     gr = 0.1
     calc_eer(T1_range,T2_range,fea,gr,debug=False)
