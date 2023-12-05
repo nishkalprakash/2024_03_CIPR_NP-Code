@@ -23,8 +23,11 @@ def parallel_compute_eer(t1_t2_fea):
     @nishkalprakash
     call calculate_block_far_frr_score for 1%
     call calculate_grain_far_frr_score for 0.1%
+    @abhibhuprakash
+    call calculate_far_frr_score(gr=1) for 1%
+    call calculate_far_frr_score(gr=0.1) for 0.1%
     """
-    return tt.calculate_block_far_frr_score(similarity_matrix, t1, t2)
+    return tt.calculate_far_frr_score(similarity_matrix, t1, t2, gr=1) # gr = 1 | 0.1
 
 
 
@@ -51,7 +54,7 @@ def calc_f1(T1,T2,fea):
 def calc_eer(T1,T2,fea,debug=False):
     far_score = []
     frr_score = []
-    out_file = Path(f"output_eer_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
+    out_file = Path(f"output_eer_T1[{T1[0]:0.3f},{T1[1]:0.3f},{T1[2]:0.3f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}].csv")
     
     head= "T1,T2,T3,FAR,FRR,EER\n"
     with out_file.open('w') as f:
