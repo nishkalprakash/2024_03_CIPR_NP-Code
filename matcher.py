@@ -35,6 +35,8 @@ def match(db_array, threshold1, threshold2):
 
             # calculate score
             for k in range(len(flag)):
+                # TODO: make score value into a gradient instead of boolean
+                # work on the flag return value of find_match
                 score += mf.find_match(array, index[k], threshold1, threshold2)
             
             percentage = score/denom * 100
