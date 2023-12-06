@@ -29,16 +29,13 @@ def compute_eer(t1_t2_fea_dt_dst):
     """
     return tt.calculate_far_frr_score(similarity_matrix, t1, t2) # def gr = 0.1
 
-def calc_eer(T1,T2,fea,denom_type='min', dist_type='euclidean_norm',debug=False):
-    # far_score = []
-    # frr_score = []
+def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=False):
     out_file = Path(f"eer_T1[{T1[0]},{T1[1]},{T1[2]}]_T2[{T2[0]},{T2[1]},{T2[2]}]_{denom_type}_{dist_type}.csv")
     if out_file.exists():
         print(f"File {out_file} already exists. Skipping...")
         return
-    else:
-        print(f"Writing to file {out_file}")
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    print(f"Writing to file {out_file}")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     head= "T1,T2,T3,FAR,FRR,EER\n"
     with out_file.open('w') as f:
         f.write(head)
