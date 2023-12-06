@@ -88,9 +88,13 @@ def find_match(array, index, threshold1, threshold2):
                 return i  # Found the closest index below    
         return None  # No index with flag 1 found below
 
+    # def flag_calculator(element1, element2, threshold1, threshold2):
+    #     # score = 1 - (sqrt((e1[1]-e2[1])^2)/t1 - sqrt((e1[2]-e2[2])^2 + (e1[3]-e2[3])^2 + (e1[4]-e2[4])^2)/sqrt(3)*t2) /2
+    #     return 1 - (np.sqrt((element1[1]-element2[1])**2)/threshold1 + np.sqrt((element1[2]-element2[2])**2 + (element1[3]-element2[3])**2 + (element1[4]-element2[4])**2)/1.7321*threshold2) /2
+
     def flag_calculator(element1, element2, threshold1, threshold2):
         # score = 1 - (sqrt((e1[1]-e2[1])^2)/t1 - sqrt((e1[2]-e2[2])^2 + (e1[3]-e2[3])^2 + (e1[4]-e2[4])^2)/sqrt(3)*t2) /2
-        return 1 - (np.sqrt((element1[1]-element2[1])**2)/threshold1 + np.sqrt((element1[2]-element2[2])**2 + (element1[3]-element2[3])**2 + (element1[4]-element2[4])**2)/1.7321*threshold2) /2
+        return 1 - ((np.sqrt((element1[1]-element2[1])**2)/threshold1) * 1/np.sqrt(1 + abs(element1[1]) + abs(element2[1])) + np.sqrt((element1[2]-element2[2])**2 + (element1[3]-element2[3])**2 + (element1[4]-element2[4])**2)/1.7321*threshold2) /2
 
     def match_function(element1, element2, threshold1, threshold2):
         if abs(element1[1]-element2[1]) < threshold1:
