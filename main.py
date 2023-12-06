@@ -16,10 +16,9 @@ from multiprocessing.pool import Pool
 #     mcc_sc = tt.calculate_MCC_score(similarity_matrix, a, b)
 #     return a,b,f1_sc, mcc_sc
 
-def parallel_compute_eer(t1_t2_fea_gr):
-    t1, t2, fea, gr = t1_t2_fea_gr
-    similarity_matrix_harmonic = mc.match(fea, t1, t2, match_type='geometric')
-    similarity_matrix = similarity_matrix_harmonic
+def compute_eer(t1_t2_fea_dt_dst):
+    t1, t2, fea, denom_type, dist_type = t1_t2_fea_dt_dst
+    similarity_matrix = mc.match(fea, t1, t2, denom_type, dist_type)
     """
     @nishkalprakash
     call calculate_block_far_frr_score for 1%
@@ -28,34 +27,12 @@ def parallel_compute_eer(t1_t2_fea_gr):
     call calculate_far_frr_score(gr=1) for 1%
     call calculate_far_frr_score(gr=0.1) for 0.1%
     """
-    return tt.calculate_far_frr_score(similarity_matrix, t1, t2, gr) # gr = 1 | 0.1
+    return tt.calculate_far_frr_score(similarity_matrix, t1, t2) # def gr = 0.1
 
-
-
-# def calc_f1(T1,T2,fea):
-#     f1_score = []
-#     mcc_score = []
-#     out_file = Path(f"output_f1_T1[{T1[0]:0.2f},{T1[1]:0.2f},{T1[2]:0.2f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T1[2]:0.3f}]_new_similarity_distance_based.csv")
-#     with Pool(cpu_count()-1) as p:
-#         # start = time.time()
-#         print("Starting parallel computation")
-#         print("Number of processors: ", cpu_count()-1)
-#         head= "T1,T2,F1_T,F1,MCC_T,MCC\n"
-#         print(head.replace(",", "\t\t"))
-#         with out_file.open('a') as f:
-#             f.write(head)
-#         for t1,t2,f1_sc, mcc_sc in p.imap_unordered(parallel_compute, gen(T1,T2,fea),10):
-#             f1_score.append(f1_sc)
-#             mcc_score.append(mcc_sc)
-#             row = f"{t1:.2f},{t2:.3f},{f1_sc[2]:.0f},{f1_sc[3]*100:.2f},{mcc_sc[2]:.0f},{mcc_sc[3]*100:.2f}\n"
-#             print(row.replace(",","\t\t"),end="")
-#             with out_file.open('a') as f:
-#                 f.write(row)
-
-def calc_eer(T1,T2,fea,gr=1,debug=False):
+def calc_eer(T1,T2,fea,denom_type='min', dist_type='euclidean_norm',debug=False):
     # far_score = []
     # frr_score = []
-    out_file = Path(f"output_eer_T1[{T1[0]:0.3f},{T1[1]:0.3f},{T1[2]:0.3f}]_T2[{T2[0]:0.3f},{T2[1]:0.3f},{T2[2]:0.3f}]_new_similarity_distance_based.csv")
+    out_file = Path(f"output_eer_T1[{T1[0]},{T1[1]},{T1[2]}]_T2[{T2[0]},{T2[1]},{T2[2]}]_{denom_type}_{dist_type}.csv")
     
     head= "T1,T2,T3,FAR,FRR,EER\n"
     with out_file.open('w') as f:
@@ -73,8 +50,8 @@ def calc_eer(T1,T2,fea,gr=1,debug=False):
         print("Starting serial computation")
         print("Number of processors: ", 1)
         print(head.replace(",", "\t\t"))
-        for t1_t2_fea_gr in gen(T1,T2,fea,gr):
-            write_row(parallel_compute_eer(t1_t2_fea_gr))
+        for t1_t2_fea_dt_dst in gen_t1_t2(T1,T2,fea,denom_type,dist_type):
+            write_row(compute_eer(t1_t2_fea_dt_dst))
         
     else:
         # run in parallel cores
@@ -82,17 +59,17 @@ def calc_eer(T1,T2,fea,gr=1,debug=False):
             print("Starting parallel computation")
             print("Number of processors: ", cpu_count()-1)
             print(head.replace(",", "\t\t"))
-            for t1_t2_t3_far_frr_eer in p.imap(parallel_compute_eer, gen(T1,T2,fea,gr)):
+            for t1_t2_t3_far_frr_eer in p.imap(compute_eer, gen_t1_t2(T1,T2,fea,denom_type, dist_type)):
                 write_row(t1_t2_t3_far_frr_eer)
 
-def gen(T1_range,T2_range,fea,gr=1):
+def gen_t1_t2(T1_range,T2_range,*args):
         threshold = (
             (i,j) for i in np.arange(*T1_range)
                   for j in np.arange(*T2_range)
         )
         
         for T1,T2 in threshold:
-            yield T1, T2, fea, gr
+            yield T1, T2, *args
 
 if __name__ == '__main__':
     from pathlib import Path
@@ -101,6 +78,10 @@ if __name__ == '__main__':
     fea = gf.generatefeatures(df)
     T1_range = (0.1,1.4,0.1)
     T2_range = (0.02,1.5,0.1)
-    # calc_f1(T1,T2,fea)
-    gr = 0.1
-    calc_eer(T1_range,T2_range,fea,gr,debug=False)
+    # gr = 0.1
+    denom_type = ['average', 'geometric', 'harmonic', 'min'][2]
+    dist_type = ['euclidean_norm','euclidian_log_norm', 'manhattan', 'cosine', 'minkowski'][0]
+    debug = True
+    debug = False
+
+    calc_eer(T1_range,T2_range,fea,denom_type, dist_type,debug)

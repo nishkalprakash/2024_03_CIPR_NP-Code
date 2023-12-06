@@ -70,7 +70,7 @@ def combine_dataframes(df1, df2):
 # find match
 # if match found, update flag for both indices to 2 and return 1
 # if no match found, update flag for current index to 1 and return 0
-def find_match(array, index, threshold1, threshold2):
+def find_match(array, index, t1, t2, dist_type='euclidean_norm'):
 
     def find_closest_above(array, index):
         # Iterate backward to find the closest index above with flag 1
@@ -88,23 +88,52 @@ def find_match(array, index, threshold1, threshold2):
                 return i  # Found the closest index below    
         return None  # No index with flag 1 found below
 
-    # def flag_calculator(element1, element2, threshold1, threshold2):
-    #     # score = 1 - (sqrt((e1[1]-e2[1])^2)/t1 - sqrt((e1[2]-e2[2])^2 + (e1[3]-e2[3])^2 + (e1[4]-e2[4])^2)/sqrt(3)*t2) /2
-    #     return 1 - (np.sqrt((element1[1]-element2[1])**2)/threshold1 + np.sqrt((element1[2]-element2[2])**2 + (element1[3]-element2[3])**2 + (element1[4]-element2[4])**2)/1.7321*threshold2) /2
+    def get_row_match_score(r1, r2):
+        """
+        Calculates the row_match_score between two elements based on their attributes.
 
-    def flag_calculator(element1, element2, threshold1, threshold2):
-        # score = 1 - (sqrt((e1[1]-e2[1])^2)/t1 - sqrt((e1[2]-e2[2])^2 + (e1[3]-e2[3])^2 + (e1[4]-e2[4])^2)/sqrt(3)*t2) /2
-        return 1 - ((np.sqrt((element1[1]-element2[1])**2)/threshold1) * 1/(1 + abs(element1[1]) + abs(element2[1]))**0.2 + np.sqrt((element1[2]-element2[2])**2 + (element1[3]-element2[3])**2 + (element1[4]-element2[4])**2)/1.7321*threshold2) /2
+        Parameters:
+        r1 (list): List of attributes for the first element.
+        r2 (list): List of attributes for the second element.
+        t1 (float): Threshold value for the alpha part of the score calculation.
+        t2 (float): Threshold value for the theta part of the score calculation.
+        mode (str, optional): Mode of calculation. Defaults to 'distance'.
 
-    def match_function(element1, element2, threshold1, threshold2):
-        if abs(element1[1]-element2[1]) < threshold1:
-            if abs(element1[2]-element2[2]) < threshold2 and abs(element1[3]-element2[3]) < threshold2 and abs(element1[4]-element2[4]) < threshold2:
+        Returns:
+        float: row_match_score score between the two row elements.
+        """
+        if dist_type == 'euclidean_norm':
+            alpha_part = np.sqrt((r1[1] - r2[1]) ** 2) / t1
+            # theta_part = np.sqrt((r1[2] - r2[2]) ** 2 + (r1[3] - r2[3]) ** 2 + (r1[4] - r2[4]) ** 2) / (1.7321 * t2)
+        
+        elif dist_type == 'euclidian_log_norm':
+            # here the alpha part gets a inverse weightage based on the distance from 0, so values close to 0 gets a higher weightage
+            alpha_part = (np.sqrt((r1[1] - r2[1]) ** 2) / t1) * 1 / np.sqrt(1 + abs(r1[1]) + abs(r2[1]))
+            # theta_part = np.sqrt((r1[2] - r2[2]) ** 2 + (r1[3] - r2[3]) ** 2 + (r1[4] - r2[4]) ** 2) / (1.7321 * t2)
+            # return 1 - (alpha_part + 3 * theta_part) / 4    
+        
+        elif dist_type == 'euclidian_log_norm_hack':
+            alpha_part = (np.sqrt((r1[1] - r2[1]) ** 2) / t1) * 1 / (1 + abs(r1[1]) + abs(r2[1]))**0.2
+            # theta_part = np.sqrt((r1[2] - r2[2]) ** 2 + (r1[3] - r2[3]) ** 2 + (r1[4] - r2[4]) ** 2) / (1.7321 * t2)
+            # return 1 - (alpha_part + 3 * theta_part) / 4
+        
+        else:
+            raise Exception("Invalid dist_type, please enter one of {euclidean_norm, euclidian_log_norm, euclidian_log_norm_hack}")
+        theta_part = np.sqrt((r1[2] - r2[2]) ** 2 + (r1[3] - r2[3]) ** 2 + (r1[4] - r2[4]) ** 2) / (1.7321 * t2)
+        return 1 - (alpha_part + 3 * theta_part) / 4
+         
+        
+    def match_function(r1, r2):
+        if abs(r1[1]-r2[1]) < t1:
+            if abs(r1[2]-r2[2]) < t2 and abs(r1[3]-r2[3]) < t2 and abs(r1[4]-r2[4]) < t2:
                 return True
+            else:
+                return False
         else:
             return False
 
-    # if match found, update flag for both indices and return 1
-    # if no match found, update flag for current index and return 0
+    # if match found, update row_match_score for both indices and return 1
+    # if no match found, update row_match_score for current index and return 0
 
     def update_flags(current_index, closest_index):
         # Helper function to update flags and perform other processing
@@ -113,7 +142,7 @@ def find_match(array, index, threshold1, threshold2):
 
     index_up = index
     index_down = index
-    flag = 0
+    row_match_score = 0
 
     while True:
         closest_above_index = find_closest_above(array, index_up)
@@ -121,11 +150,11 @@ def find_match(array, index, threshold1, threshold2):
 
         # check if threshold is reached
         if closest_above_index is not None:
-            if abs(array[closest_above_index][1] - array[index][1]) > threshold1:
+            if abs(array[closest_above_index][1] - array[index][1]) > t1:
                 closest_above_index = None
         
         if closest_below_index is not None:
-            if abs(array[closest_below_index][1] - array[index][1]) > threshold1:
+            if abs(array[closest_below_index][1] - array[index][1]) > t1:
                 closest_below_index = None
 
         # Check if there's a closest index above and below
@@ -133,41 +162,43 @@ def find_match(array, index, threshold1, threshold2):
             # if above is closer than below
             if array[closest_below_index][1] - array[index][1] > array[index][1] - array[closest_above_index][1]:
                 # Check if the closest index above is within the threshold
-                if match_function(array[index], array[closest_above_index], threshold1, threshold2):
+                if match_function(array[index], array[closest_above_index]):
                     # Match found, update flags or do other processing
                     update_flags(index, closest_above_index)
-                    flag = flag_calculator(array[index], array[closest_above_index], threshold1, threshold2) # Set flag to score to indicate a match is found
-                    break  # Exit the loop
+                    row_match_score = get_row_match_score(array[index], array[closest_above_index]) # Set row_match_score to score to indicate a match is found
+                    return row_match_score
             else:
                 # Check if the closest index below is within the threshold
-                if match_function(array[index], array[closest_below_index], threshold1, threshold2):
+                if match_function(array[index], array[closest_below_index]):
                     # Match found, update flags or do other processing
                     update_flags(index, closest_below_index)
-                    flag = flag_calculator(array[index], array[closest_below_index], threshold1, threshold2) # Set flag to score to indicate a match is found
-                    break  # Exit the loop
+                    row_match_score = get_row_match_score(array[index], array[closest_below_index]) # Set row_match_score to score to indicate a match is found
+                    return row_match_score
 
         # if only above is not None
         elif closest_above_index is not None:
             # Check if the closest index above is within the threshold
-            if match_function(array[index], array[closest_above_index], threshold1, threshold2):
+            if match_function(array[index], array[closest_above_index]):
                 # Match found, update flags or do other processing
                 update_flags(index, closest_above_index)
-                flag = flag_calculator(array[index], array[closest_above_index], threshold1, threshold2) # Set flag to score to indicate a match is found
-                break  # Exit the loop
+                row_match_score = get_row_match_score(array[index], array[closest_above_index]) # Set row_match_score to score to indicate a match is found
+                return row_match_score
 
         # if only below is not None
         elif closest_below_index is not None:
             # Check if the closest index below is within the threshold
-            if match_function(array[index], array[closest_below_index], threshold1, threshold2):
+            if match_function(array[index], array[closest_below_index]):
                 # Match found, update flags or do other processing
                 update_flags(index, closest_below_index)
-                flag = flag_calculator(array[index], array[closest_below_index], threshold1, threshold2) # Set flag to score to indicate a match is found
-                break  # Exit the loop
+                row_match_score = get_row_match_score(array[index], array[closest_below_index]) # Set row_match_score to score to indicate a match is found
+                return row_match_score
 
-        # No match found within the threshold, update flag for current index and proceed
+        # No match found within the threshold, update row_match_score for current index and proceed
         else:
             array[index][0] = 2
-            break
+            row_match_score = 0
+            # break
+            return row_match_score
 
         # if either above or below not none but still no match found
         # update index_up and index_down without changing index andd loop
@@ -178,4 +209,4 @@ def find_match(array, index, threshold1, threshold2):
         if closest_below_index is not None:
             index_down = closest_below_index
     
-    return flag
+    return row_match_score

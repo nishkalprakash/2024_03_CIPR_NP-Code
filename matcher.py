@@ -5,7 +5,7 @@
 import matcherfunc as mf
 import numpy as np
 
-def match(db_array, threshold1, threshold2, match_type='min'):
+def match(db_array, threshold1, threshold2, denom_type = 'min', dist_type = 'euclidian_log_norm'):
     """
     Calculate the similarity scores between fingerprints in the given database array.
     The genuine and imposter pairs are generated here.
@@ -13,16 +13,10 @@ def match(db_array, threshold1, threshold2, match_type='min'):
         db_array (list): The array containing the fingerprints. [[name, features_array],...]
         threshold1 (float): The first threshold value for alpha for matching.
         threshold2 (float): The second threshold value for thetha for matching.
-        match_type (str, optional): The type of matching to be performed. Can be one of 'harmonic', 'average', 'min', or 'geometric'. Defaults to 'min'.
-
+        denom_type (str, optional): The type of matching to be performed. Can be one of 'harmonic', 'average', 'min', or 'geometric'. Defaults to 'min'.
     Returns:
         list: The similarity array containing the scores and flags for each pair of fingerprints.
     """
-    
-    # Rest of the code...
-def match(db_array, threshold1, threshold2, match_type = 'min'):
-    
-    # """ match_type can be {harmonic, average, min, geometric} """
 
     # find length of array to know number of fingerprints
     n = len(db_array)
@@ -37,7 +31,7 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
     
 
     # this loop takes all combinations of fingerprints
-    # change to take only 450 genuine pairs and 450 imposter pairs
+    # TODO: change to take only 450 genuine pairs and 450 imposter pairs
     for i in range(n):
         for j in range(i+1, n):
             # fp1 and fp2 are indirect feature vectors of two fingerprints
@@ -45,14 +39,16 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
             fp2 = db_array[j][1]
 
             array, index_array, length1, length2 = mf.combine_dataframes(fp1, fp2)
-            if match_type == 'average':
+            if denom_type == 'average':
                 denom = (length1 + length2)/2
-            elif match_type == 'geometric':
+            elif denom_type == 'geometric':
                 denom = np.sqrt(length1*length2)
-            elif match_type == 'harmonic':
+            elif denom_type == 'harmonic':
                 denom = 2*length1*length2/(length1 + length2)
-            elif match_type == 'min':
+            elif denom_type == 'min':
                 denom = min(length1, length2)
+            else:
+                raise Exception("Invalid denom_type, please enter one of {average, geometric, harmonic, min}")
 
             # initialize score counter
             score = 0
@@ -67,7 +63,7 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
             for k in range(len(index_array)):
                 # TODO: make score value into a gradient instead of boolean
                 # work on the flag return value of find_match
-                score += mf.find_match(array, index[k], threshold1, threshold2)
+                score += mf.find_match(array, index[k], threshold1, threshold2, dist_type)
             
             percentage = score/denom * 100
             # results.append([is_same, percentage])

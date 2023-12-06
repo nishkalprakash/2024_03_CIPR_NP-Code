@@ -157,7 +157,7 @@ def traverse(array,gr=1):
 
 
 # TODO: make correct calc far and calc frr functions
-def calculate_far_frr_score(similarity_array, t1, t2, gr=1):
+def calculate_far_frr_score(similarity_array, t1, t2, gr=0.1):
     # https://www.dicorm.com.my/post/demystifying-far-and-frr#:~:text=You%20calculate%20the%20FAR%20and,of%20true%20positives)%20x%20100
     """
     Input:
@@ -174,18 +174,14 @@ def calculate_far_frr_score(similarity_array, t1, t2, gr=1):
     
     cumulative_true, cumulative_false, true_length, false_length = traverse(similarity_array, gr=gr)
 
-    # minimize avg of far and frr score
-    # f1 = 0
     eer_opt=1
     t3 = 0
     far_opt, frr_opt = 0, 0
-    # store conditions when f1 score is maximum
     for i in range(0, int(100/gr)+1):
         fn = cumulative_true[i]
         tn = cumulative_false[i]
         fp = false_length - tn
         tp = true_length - fn
-        # print(tp, tn, fp, fn)
         far_score = calc_far_score(tp, tn, fp, fn)
         frr_score = calc_frr_score(tp, tn, fp, fn)
         eer_score = (far_score + frr_score) / 2
