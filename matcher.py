@@ -44,7 +44,7 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
             fp1 = db_array[i][1]
             fp2 = db_array[j][1]
 
-            array, flag, length1, length2 = mf.combine_dataframes(fp1, fp2)
+            array, index_array, length1, length2 = mf.combine_dataframes(fp1, fp2)
             if match_type == 'average':
                 denom = (length1 + length2)/2
             elif match_type == 'geometric':
@@ -61,10 +61,10 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
             is_same = mf.check_name(db_array[i][0], db_array[j][0])
 
             # find order of index to scan
-            index = mf.find_next_index(array, flag)
+            index = mf.find_next_index(array, index_array)
 
             # calculate score
-            for k in range(len(flag)):
+            for k in range(len(index_array)):
                 # TODO: make score value into a gradient instead of boolean
                 # work on the flag return value of find_match
                 score += mf.find_match(array, index[k], threshold1, threshold2)
