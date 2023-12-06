@@ -115,4 +115,4 @@ def pair_selector(db, seed_count = 0):
         for j in index_tuple:
             new_db.append(db[i * impression_count + j])
 
-    return new_db
+    return new_db, impression_count, fingerprint_count

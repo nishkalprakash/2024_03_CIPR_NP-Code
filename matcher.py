@@ -42,3 +42,17 @@ def match(db_array, threshold1, threshold2):
             similarity_array.append([is_same, percentage])
 
     return similarity_array
+
+# # incomplete
+# # TODO: may wanna complete this
+# import generatefeatures as gf
+# def balanced_dataset_generator(db_array, threshold1, threshold2, seed_count = 3):
+#     # split db_array into fingerprint_count number of arrays of size impression_count
+#     # call match function on each array
+#     new_db_array = gf.generatefeatures(db_array, seed_count)
+#     similarity_array = []
+#     for i in range(fingerprint_count):
+#         temp_array = []
+#         for j in range(impression_count):
+#             temp_array.append(db_array[i*impression_count + j])
+#         similarity_array.append(match(temp_array, threshold1, threshold2))
