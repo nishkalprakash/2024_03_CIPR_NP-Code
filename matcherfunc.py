@@ -88,7 +88,9 @@ def find_match(array, index, threshold1, threshold2):
                 return i  # Found the closest index below    
         return None  # No index with flag 1 found below
 
-
+    def flag_calculator(element1, element2, threshold1, threshold2):
+        # score = 1 - (sqrt((e1[1]-e2[1])^2)/t1 - sqrt((e1[2]-e2[2])^2 + (e1[3]-e2[3])^2 + (e1[4]-e2[4])^2)/sqrt(3)*t2) /2
+        return 1 - (np.sqrt((element1[1]-element2[1])**2)/threshold1 + np.sqrt((element1[2]-element2[2])**2 + (element1[3]-element2[3])**2 + (element1[4]-element2[4])**2)/1.7321*threshold2) /2
 
     def match_function(element1, element2, threshold1, threshold2):
         if abs(element1[1]-element2[1]) < threshold1:
@@ -130,14 +132,14 @@ def find_match(array, index, threshold1, threshold2):
                 if match_function(array[index], array[closest_above_index], threshold1, threshold2):
                     # Match found, update flags or do other processing
                     update_flags(index, closest_above_index)
-                    flag = 1 # Set flag to 1 to indicate a match is found
+                    flag = flag_calculator(array[index], array[closest_above_index], threshold1, threshold2) # Set flag to score to indicate a match is found
                     break  # Exit the loop
             else:
                 # Check if the closest index below is within the threshold
                 if match_function(array[index], array[closest_below_index], threshold1, threshold2):
                     # Match found, update flags or do other processing
                     update_flags(index, closest_below_index)
-                    flag = 1 # Set flag to 1 to indicate a match is found
+                    flag = flag_calculator(array[index], array[closest_below_index], threshold1, threshold2) # Set flag to score to indicate a match is found
                     break  # Exit the loop
 
         # if only above is not None
@@ -146,7 +148,7 @@ def find_match(array, index, threshold1, threshold2):
             if match_function(array[index], array[closest_above_index], threshold1, threshold2):
                 # Match found, update flags or do other processing
                 update_flags(index, closest_above_index)
-                flag = 1 # Set flag to 1 to indicate a match is found
+                flag = flag_calculator(array[index], array[closest_above_index], threshold1, threshold2) # Set flag to score to indicate a match is found
                 break  # Exit the loop
 
         # if only below is not None
@@ -155,7 +157,7 @@ def find_match(array, index, threshold1, threshold2):
             if match_function(array[index], array[closest_below_index], threshold1, threshold2):
                 # Match found, update flags or do other processing
                 update_flags(index, closest_below_index)
-                flag = 1 # Set flag to 1 to indicate a match is found
+                flag = flag_calculator(array[index], array[closest_below_index], threshold1, threshold2) # Set flag to score to indicate a match is found
                 break  # Exit the loop
 
         # No match found within the threshold, update flag for current index and proceed

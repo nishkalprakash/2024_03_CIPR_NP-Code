@@ -65,6 +65,8 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
 
             # calculate score
             for k in range(len(flag)):
+                # TODO: make score value into a gradient instead of boolean
+                # work on the flag return value of find_match
                 score += mf.find_match(array, index[k], threshold1, threshold2)
             
             percentage = score/denom * 100
@@ -72,3 +74,17 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
             similarity_array.append([is_same, percentage])
 
     return similarity_array
+
+# # incomplete
+# # TODO: may wanna complete this
+# import generatefeatures as gf
+# def balanced_dataset_generator(db_array, threshold1, threshold2, seed_count = 3):
+#     # split db_array into fingerprint_count number of arrays of size impression_count
+#     # call match function on each array
+#     new_db_array = gf.generatefeatures(db_array, seed_count)
+#     similarity_array = []
+#     for i in range(fingerprint_count):
+#         temp_array = []
+#         for j in range(impression_count):
+#             temp_array.append(db_array[i*impression_count + j])
+#         similarity_array.append(match(temp_array, threshold1, threshold2))
