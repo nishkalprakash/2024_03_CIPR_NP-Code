@@ -32,7 +32,10 @@ def compute_eer(t1_t2_fea_dt_dst):
 def calc_eer(T1,T2,fea,denom_type='min', dist_type='euclidean_norm',debug=False):
     # far_score = []
     # frr_score = []
-    out_file = Path(f"output_eer_T1[{T1[0]},{T1[1]},{T1[2]}]_T2[{T2[0]},{T2[1]},{T2[2]}]_{denom_type}_{dist_type}.csv")
+    out_file = Path(f"eer_T1[{T1[0]},{T1[1]},{T1[2]}]_T2[{T2[0]},{T2[1]},{T2[2]}]_{denom_type}_{dist_type}.csv")
+    if out_file.exists():
+        print(f"File {out_file} already exists. Skipping...")
+        return
     
     head= "T1,T2,T3,FAR,FRR,EER\n"
     with out_file.open('w') as f:
@@ -79,9 +82,16 @@ if __name__ == '__main__':
     T1_range = (0.1,1.4,0.1)
     T2_range = (0.02,1.5,0.1)
     # gr = 0.1
-    denom_type = ['average', 'geometric', 'harmonic', 'min'][2]
-    dist_type = ['euclidean_norm','euclidian_log_norm', 'manhattan', 'cosine', 'minkowski'][0]
+    denom_type = ['average', 'geometric', 'harmonic', 'min']
+    dist_type = ['euclidean_norm','euclidian_log_norm']
+    # TODO: add these dist measures as well ['manhattan', 'cosine', 'minkowski']
     debug = True
     debug = False
 
-    calc_eer(T1_range,T2_range,fea,denom_type, dist_type,debug)
+    for dt in denom_type:
+        for dst in dist_type:
+            if (dt,dst) == ('harmonic','euclidean_norm'):
+                continue
+            calc_eer(T1_range,T2_range,fea,dt,dst)
+             
+    # calc_eer(T1_range,T2_range,fea,denom_type[2], dist_type[0],debug)
