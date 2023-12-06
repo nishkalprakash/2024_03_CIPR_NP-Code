@@ -69,6 +69,8 @@ def ret_arr(triplet_array):
         for i in range(3):
             if triplets[i][2] < 0:
                 triplets[i][2] = triplets[i][2] + np.pi
+            if triplets[i][2] > np.pi:
+                triplets[i][2] = triplets[i][2] - np.pi
         # find relative angle
         rel = []
         for i in range(3):
