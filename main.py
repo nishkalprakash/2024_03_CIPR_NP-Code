@@ -36,7 +36,9 @@ def calc_eer(T1,T2,fea,denom_type='min', dist_type='euclidean_norm',debug=False)
     if out_file.exists():
         print(f"File {out_file} already exists. Skipping...")
         return
-    
+    else:
+        print(f"Writing to file {out_file}")
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     head= "T1,T2,T3,FAR,FRR,EER\n"
     with out_file.open('w') as f:
         f.write(head)
@@ -79,14 +81,14 @@ if __name__ == '__main__':
     json_files = [r'Datasets\anguli_10_100_fingernet.json']
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
-    T1_range = (0.1,1.4,0.1)
-    T2_range = (0.02,1.5,0.1)
+    T1_range = (0.1,2,0.1)
+    T2_range = (0.01,0.13,0.01)
     # gr = 0.1
     denom_type = ['average', 'geometric', 'harmonic', 'min']
     dist_type = ['euclidean_norm','euclidian_log_norm']
     # TODO: add these dist measures as well ['manhattan', 'cosine', 'minkowski']
     debug = True
-    debug = False
+    # debug = False
 
     for dt in denom_type:
         for dst in dist_type:
