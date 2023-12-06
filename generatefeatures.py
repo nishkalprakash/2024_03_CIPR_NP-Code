@@ -57,66 +57,66 @@ def generatefeatures(df):
 # check if input strings are similar:
 
 
-def pair_selector(db, seed_count = 0):
-    if seed_count == 0:
-        return None
+# def pair_selector(db, seed_count = 0):
+#     if seed_count == 0:
+#         return None
     
-    def check_name(name1, name2):
-        # split name1 and name2 into tokens based on '_'
-        # check if all tokens except the last one are the same
-        # if yes, return True
-        # if no, return False
-        name1 = name1.split('_')
-        name2 = name2.split('_')
-        if len(name1) != len(name2):
-            return False
-        else:
-            for i in range(len(name1)-1):
-                if name1[i] != name2[i]:
-                    return False
-            return True
+#     def check_name(name1, name2):
+#         # split name1 and name2 into tokens based on '_'
+#         # check if all tokens except the last one are the same
+#         # if yes, return True
+#         # if no, return False
+#         name1 = name1.split('_')
+#         name2 = name2.split('_')
+#         if len(name1) != len(name2):
+#             return False
+#         else:
+#             for i in range(len(name1)-1):
+#                 if name1[i] != name2[i]:
+#                     return False
+#             return True
     
-    impression_count = 0
-    while True:
-        x = get_name(0, db)
-        y = get_name(impression_count, db)
-        if check_name(x, y):
-            impression_count += 1
-        else:
-            break
+#     impression_count = 0
+#     while True:
+#         x = get_name(0, db)
+#         y = get_name(impression_count, db)
+#         if check_name(x, y):
+#             impression_count += 1
+#         else:
+#             break
     
-    fingerprint_count = len(db) / impression_count
+#     fingerprint_count = len(db) / impression_count
 
-    # generate a tuple of random integers less than impression_count. size of tuple is seed_count
-    # if impression_count is less than seed count, return every integer in range(impression_count)
+#     # generate a tuple of random integers less than impression_count. size of tuple is seed_count
+#     # if impression_count is less than seed count, return every integer in range(impression_count)
 
-    index_tuple = []
-    if seed_count >= impression_count:
-        for i in range(impression_count):
-            index_tuple.append(i)
-    else:
-        # use numpy to pick 3 numbers from 10 numbers without replacement
-        index_tuple = np.random.choice(impression_count - 1, seed_count, replace=False)
-        # i = rn.randint(0, impression_count - 1)
-        # index_tuple.append(i)
-        # while True:
-        #     # generate a random interger
-        #     i = rn.randint(0, impression_count - 1)
-        #     # check if i already lies in index_tuple array
-        #     for j in index_tuple:
-        #         if i == j:
-        #             continue
-        #         else:
-        #             index_tuple.append(i)
-        #             continue
-        #     if len(index_tuple) == seed_count:
-        #         break
-    index_tuple.sort()
+#     index_tuple = []
+#     if seed_count >= impression_count:
+#         for i in range(impression_count):
+#             index_tuple.append(i)
+#     else:
+#         # use numpy to pick 3 numbers from 10 numbers without replacement
+#         index_tuple = np.random.choice(impression_count - 1, seed_count, replace=False)
+#         # i = rn.randint(0, impression_count - 1)
+#         # index_tuple.append(i)
+#         # while True:
+#         #     # generate a random interger
+#         #     i = rn.randint(0, impression_count - 1)
+#         #     # check if i already lies in index_tuple array
+#         #     for j in index_tuple:
+#         #         if i == j:
+#         #             continue
+#         #         else:
+#         #             index_tuple.append(i)
+#         #             continue
+#         #     if len(index_tuple) == seed_count:
+#         #         break
+#     index_tuple.sort()
     
-    # from the df, select impressions indexed index_tuple for each fingerprint
-    new_db = []
-    for i in range(fingerprint_count):
-        for j in index_tuple:
-            new_db.append(db[i * impression_count + j])
+#     # from the df, select impressions indexed index_tuple for each fingerprint
+#     new_db = []
+#     for i in range(fingerprint_count):
+#         for j in index_tuple:
+#             new_db.append(db[i * impression_count + j])
 
-    return new_db, impression_count, fingerprint_count
+#     return new_db, impression_count, fingerprint_count
