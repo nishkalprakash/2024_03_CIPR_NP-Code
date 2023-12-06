@@ -1,7 +1,7 @@
 desktop.ini
 FVC2002.lnk
 Debug/
-Datasets/
+Datasets/*
 !Datasets/*.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
