@@ -18,7 +18,8 @@ def parallel_compute(data):
 
 def parallel_compute_eer(t1_t2_fea_gr):
     t1, t2, fea, gr = t1_t2_fea_gr
-    similarity_matrix = mc.match(fea, t1, t2)
+    similarity_matrix_harmonic = mc.match(fea, t1, t2, match_type='geometric')
+    similarity_matrix = similarity_matrix_harmonic
     """
     @nishkalprakash
     call calculate_block_far_frr_score for 1%
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     df = pd.read_json(json_files[0],orient='records')
     fea = gf.generatefeatures(df)
     T1_range = (0.1,1.4,0.1)
-    T2_range = (0.02,0.12,0.001)
+    T2_range = (0.02,1.5,0.1)
     # calc_f1(T1,T2,fea)
     gr = 0.1
     calc_eer(T1_range,T2_range,fea,gr,debug=False)

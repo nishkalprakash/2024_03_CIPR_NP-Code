@@ -3,8 +3,10 @@
 # output is array containing nC2 combinations of fingerprint names and their similarity score
 
 import matcherfunc as mf
+import numpy as np
 
-def match(db_array, threshold1, threshold2):
+def match(db_array, threshold1, threshold2, match_type = 'min'):
+    """ match_type can be {harmonic, average, min, geometric} """
     # find length of array to know number of fingerprints
     n = len(db_array)
 
@@ -22,7 +24,14 @@ def match(db_array, threshold1, threshold2):
             fp2 = db_array[j][1]
 
             array, flag, length1, length2 = mf.combine_dataframes(fp1, fp2)
-            denom = min(length1, length2)
+            if match_type == 'average':
+                denom = (length1 + length2)/2
+            elif match_type == 'geometric':
+                denom = np.sqrt(length1*length2)
+            elif match_type == 'harmonic':
+                denom = 2*length1*length2/(length1 + length2)
+            elif match_type == 'min':
+                denom = min(length1, length2)
 
             # initialize score counter
             score = 0

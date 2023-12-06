@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.spatial import Delaunay
 import functions as fn
 import random as rn
+import numpy as np
 
 def get_name(index, df):
     name = df['path'][index]
@@ -93,22 +94,24 @@ def pair_selector(db, seed_count = 0):
         for i in range(impression_count):
             index_tuple.append(i)
     else:
-        i = rn.randint(0, impression_count - 1)
-        index_tuple.append(i)
-        while True:
-            # generate a random interger
-            i = rn.randint(0, impression_count - 1)
-            # check if i already lies in index_tuple array
-            for j in index_tuple:
-                if i == j:
-                    continue
-                else:
-                    index_tuple.append(i)
-                    continue
-            if len(index_tuple) == seed_count:
-                break
+        # use numpy to pick 3 numbers from 10 numbers without replacement
+        index_tuple = np.random.choice(impression_count - 1, seed_count, replace=False)
+        # i = rn.randint(0, impression_count - 1)
+        # index_tuple.append(i)
+        # while True:
+        #     # generate a random interger
+        #     i = rn.randint(0, impression_count - 1)
+        #     # check if i already lies in index_tuple array
+        #     for j in index_tuple:
+        #         if i == j:
+        #             continue
+        #         else:
+        #             index_tuple.append(i)
+        #             continue
+        #     if len(index_tuple) == seed_count:
+        #         break
     index_tuple.sort()
-
+    
     # from the df, select impressions indexed index_tuple for each fingerprint
     new_db = []
     for i in range(fingerprint_count):
