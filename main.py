@@ -103,4 +103,4 @@ if __name__ == '__main__':
     T2_range = (0.02,1.5,0.1)
     # calc_f1(T1,T2,fea)
     gr = 0.1
-    calc_eer(T1_range,T2_range,fea,gr,debug=False)
+    calc_eer(T1_range,T2_range,fea,gr,debug=True)

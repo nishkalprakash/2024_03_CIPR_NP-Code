@@ -5,8 +5,25 @@
 import matcherfunc as mf
 import numpy as np
 
+def match(db_array, threshold1, threshold2, match_type='min'):
+    """
+    Calculate the similarity scores between fingerprints in the given database array.
+    The genuine and imposter pairs are generated here.
+    Args:
+        db_array (list): The array containing the fingerprints. [[name, features_array],...]
+        threshold1 (float): The first threshold value for alpha for matching.
+        threshold2 (float): The second threshold value for thetha for matching.
+        match_type (str, optional): The type of matching to be performed. Can be one of 'harmonic', 'average', 'min', or 'geometric'. Defaults to 'min'.
+
+    Returns:
+        list: The similarity array containing the scores and flags for each pair of fingerprints.
+    """
+    
+    # Rest of the code...
 def match(db_array, threshold1, threshold2, match_type = 'min'):
-    """ match_type can be {harmonic, average, min, geometric} """
+    
+    # """ match_type can be {harmonic, average, min, geometric} """
+
     # find length of array to know number of fingerprints
     n = len(db_array)
 
@@ -17,6 +34,10 @@ def match(db_array, threshold1, threshold2, match_type = 'min'):
     similarity_array = []
     # TODO: Update genuine pairs logic, imposter pair logic...
     # iterate through all combinations of fingerprints
+    
+
+    # this loop takes all combinations of fingerprints
+    # change to take only 450 genuine pairs and 450 imposter pairs
     for i in range(n):
         for j in range(i+1, n):
             # fp1 and fp2 are indirect feature vectors of two fingerprints

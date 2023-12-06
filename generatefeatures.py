@@ -9,6 +9,7 @@ import numpy as np
 def get_name(index, df):
     name = df['path'][index]
     name = name.replace('/', '_')
+    name = name.replace('.tiff', '')
     name = name.replace('.tif', '')
     return name
 
