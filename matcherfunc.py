@@ -70,36 +70,40 @@ def get_match_score_at_index(index, array, t1, t2, dist_type='euclidean_norm'):
             return True
         return False
 
-    def update_flags(match_index,index=index,array=array):
+    def update_flags(match_index=None,index=index,array=array):
         # Helper function to update flags
-        if match_index:
+        if match_index!=None:
             array[match_index][0] = 2
         array[index][0] = 2
 
     def get_match_index(next_up_index,next_down_index,index=index,array=array):
         # if both exist, pick having smaller alpha
-        if next_up_index and next_down_index:
+        if next_up_index!=None and next_down_index!=None:
             # if down is smaller
             if diff(array[next_down_index][1], array[index][1]) < diff(array[index][1],array[next_up_index][1]):
                 return next_down_index
             return next_up_index
-        return next_up_index or next_down_index
+        elif next_down_index!=None:
+            return next_down_index
+        elif next_up_index!=None:
+            return next_up_index
+        return None
 
     index_up = index
     index_down = index
     match_index = index
-    while match_index:
+    while match_index!=None:
         if match_index == index_up:
             index_up = find_next_index(index_up,'up')
         if match_index == index_down:
             index_down = find_next_index(index_down,'down')
         match_index = get_match_index(index_up,index_down)
-        if match_index:
+        if match_index!=None:
             if thetas_within_thresh(match_index):
                 update_flags(match_index)
                 return get_row_match_score(match_index)
                 # return 1
             # else the loop continues to find_next_index to match with
     # No match found within the threshold, update current index and proceed
-    update_flags(match_index)
+    update_flags()
     return 0

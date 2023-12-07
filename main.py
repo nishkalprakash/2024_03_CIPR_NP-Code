@@ -16,16 +16,16 @@ from multiprocessing.pool import Pool
 #     mcc_sc = tt.calculate_MCC_score(similarity_matrix, a, b)
 #     return a,b,f1_sc, mcc_sc
 
-def compute_eer(t1_t2_fea_dt_dst):
-    t1, t2, fea, denom_type, dist_type = t1_t2_fea_dt_dst
-    tr_arr_dict,fa_arr_dict = mc.match(fea, t1, t2, denom_type, dist_type)
-    return tt.calculate_far_frr_score(t1, t2,list(tr_arr_dict.values()),list(fa_arr_dict.values())) # def gr = 0.1
+def compute_eer(t1_t2_fea_dt_dst_nf):
+    t1, t2, *_ = t1_t2_fea_dt_dst_nf
+    tr_arr_dict,fa_arr_dict = mc.match(*t1_t2_fea_dt_dst_nf)
+    return tt.calculate_far_frr_score(t1, t2, sorted(tr_arr_dict.values()),sorted(fa_arr_dict.values())) # def gr = 0.1
 
-def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=False):
+def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',nf=1,debug=False):
     out_file = Path(f"eer_T1[{T1[0]},{T1[1]},{T1[2]}]_T2[{T2[0]},{T2[1]},{T2[2]}]_{denom_type}_{dist_type}.csv")
-    if out_file.exists():
+    if not debug and out_file.exists():
         print(f"File {out_file} already exists. Skipping...")
-        # return
+        return
     print(f"Writing to file {out_file}")
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     head= "T1,T2,T3,FAR,FRR,EER\n"
@@ -34,7 +34,7 @@ def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=F
 
     def write_row(t1_t2_t3_far_frr_eer):
         t1,t2,t3, far, frr, eer = t1_t2_t3_far_frr_eer
-        row = f"{t1:.3f},{t2:.3f},{t3:.0f},{far*100:.2f},{frr*100:.2f},{eer*100:0.2f}\n"
+        row = f"{t1},{t2},{t3},{far*100:.2f},{frr*100:.2f},{eer*100:0.2f}\n"
         print(row.replace(",","\t\t"),end="")
         with out_file.open('a') as f:
                 f.write(row)
@@ -44,8 +44,8 @@ def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=F
         print("Starting serial computation")
         print("Number of processors: ", 1)
         print(head.replace(",", "\t\t"))
-        for t1_t2_fea_dt_dst in gen_t1_t2(T1,T2,fea,denom_type,dist_type):
-            write_row(compute_eer(t1_t2_fea_dt_dst))
+        for t1_t2_fea_dt_dst_nf in gen_t1_t2(T1,T2,fea,denom_type,dist_type,nf):
+            write_row(compute_eer(t1_t2_fea_dt_dst_nf))
         
     else:
         # run in parallel cores
@@ -53,7 +53,7 @@ def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=F
             print("Starting parallel computation")
             print("Number of processors: ", cpu_count()-1)
             print(head.replace(",", "\t\t"))
-            for t1_t2_t3_far_frr_eer in p.imap(compute_eer, gen_t1_t2(T1,T2,fea,denom_type, dist_type)):
+            for t1_t2_t3_far_frr_eer in p.imap(compute_eer, gen_t1_t2(T1,T2,fea,denom_type, dist_type,nf)):
                 write_row(t1_t2_t3_far_frr_eer)
 
 def gen_t1_t2(T1_range,T2_range,*args):
@@ -79,6 +79,7 @@ if __name__ == '__main__':
     denom_type = ['average', 'geometric', 'harmonic', 'min']
     dist_type = ['euclidean_norm','euclidean_log_norm','euclidean_log_norm_hack']
     # TODO: add these dist measures as well ['manhattan', 'cosine', 'minkowski']
+    nf=1
     debug = True
     # debug = False
 
@@ -86,4 +87,4 @@ if __name__ == '__main__':
     #     for dst in dist_type:
     #         calc_eer(T1_range,T2_range,fea,dt,dst)
              
-    calc_eer(T1_range,T2_range,fea,denom_type[2], dist_type[0],debug)
+    calc_eer(T1_range,T2_range,fea,denom_type[2], dist_type[0],nf,debug)

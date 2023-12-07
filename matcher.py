@@ -59,7 +59,7 @@ def get_imposter(test_dict,n_finger_per_person=1):
             imposter_dict[k]=v
         yield imposter_dict
 
-def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm', n_finger_per_person = 10):
+def match(T1, T2, db_array, denom_type = 'harmonic', dist_type = 'euclidean_norm', n_finger_per_person = 10):
     """
     Calculate the similarity scores between fingerprints in the given database array.
     The genuine and imposter pairs are generated here.
@@ -84,7 +84,7 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
 
     
     genine_pairs = chain(fin_imp_fea_dict.values())
-    n_finger_per_person = 10
+    # n_finger_per_person = 10
     imposter_pairs = chain(get_imposter(fin_imp_fea_dict,n_finger_per_person))
 
     def get_denom(l1,l2,denom_type=denom_type):
@@ -102,6 +102,10 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
     def get_score(pair):
         fp1,fp2 = pair.values()
         l1,l2 = len(fp1),len(fp2)
+        # use smaller length to match
+        if l1 > l2:
+            l1,l2 = l2,l1
+            fp1,fp2 = fp2,fp1
         comb_arr = sorted(
             chain([
                     ([1]+fv for fv in fp1),
