@@ -7,9 +7,13 @@ import numpy as np
 def ret_arr(triplet_array):
     # return values in final_array
     final_array = []
-
+    log_array = []
     def calc_log_ratio(x, y):
         # Calculate the log ratio of two numbers with base 2
+        # if y < 1:
+            # return 5
+        data = f"{x},{y}\n"
+        log_array.append(data)
         val = np.log2(np.abs(x / y))
         if val < -5:
             return -5
@@ -142,5 +146,6 @@ def ret_arr(triplet_array):
 
     # sort the final_array
     final_array.sort()
-
-    return final_array
+    with open('log_array2.csv','a+') as f:
+        f.write("".join(log_array))
+    return final_array  

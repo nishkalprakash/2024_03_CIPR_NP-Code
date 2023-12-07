@@ -7,12 +7,11 @@ import numpy as np
 from pathlib import Path
 from itertools import combinations
 
-
 def  get_finger_id(name):
     # splits the path by '_' and returns the 2nd last value
     return int(Path(name).stem.split('_')[-2])
 
-def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm'):
+def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm', n_finger_per_person = 1):
     """
     Calculate the similarity scores between fingerprints in the given database array.
     The genuine and imposter pairs are generated here.
@@ -39,7 +38,7 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
             person_feature_dict[id]=[fv]
 
     def nC2(fvs):
-        for pair in combinations(fvs):
+        for pair in combinations(fvs,2):
             yield pair
 
     def chain(arrs,func=nC2):
@@ -54,7 +53,7 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
             yield (fp[i] for fp in person_feature_dict.values())
     
     genine_pairs = chain(person_feature_dict.values())
-    n_finger_per_person = 3
+    n_finger_per_person = 10
     imposter_pairs = chain(get_imposter(n_finger_per_person))
 
     def get_denom(l1,l2,denom_type=denom_type):
@@ -71,66 +70,27 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
     
     def get_score(pair):
         fp1,fp2 = pair
-        l1,l2 = len(fp1,fp2)
+        l1,l2 = len(fp1),len(fp2)
         comb_arr = sorted(
             chain([
-                    ((1,fv) for fv in fp1),
-                    ((0,fv) for fv in fp2)
+                    ([1]+fv for fv in fp1),
+                    ([0]+fv for fv in fp2)
                 ],None), key=lambda x:x[1]
             )
         # https://stackoverflow.com/questions/45655987/efficient-solution-for-merging-2-sorted-lists-in-python
         index_arr = sorted(
-            ((i,fv[1]) for i,fv in enumerate(comb_arr) if fv[0]),
+            ((i,flag_fv[1]) for i,flag_fv in enumerate(comb_arr) if flag_fv[0]),
             key=lambda x:abs(x[1]))
         score = 0
-        for index,_ in index_arr:
-            score += mf.find_match(comb_arr,index,T1,T2,dist_type)
+        index_gen = (i[0] for i in index_arr)
+        for index in index_gen:
+            sc = mf.get_match_score_at_index(index,comb_arr,T1,T2,dist_type)
+            assert 0<=sc<=1,f"{sc} - ERROR: score not between 0 & 1"
+            score+=sc
+
         percentage = (score / get_denom(l1,l2)) * 100
         return percentage
 
     tr_arr = sorted(get_score(pair) for pair in genine_pairs)
     fa_arr = sorted(get_score(pair) for pair in imposter_pairs)
     return tr_arr, fa_arr
-    # for i in range(n):
-    #     for j in range(i+1, n):
-    #         # fp1 and fp2 are indirect feature vectors of two fingerprints
-    #         fp1 = db_array[i][1]
-    #         fp2 = db_array[j][1]
-
-    #         array, index_array, length1, length2 = mf.combine_dataframes(fp1, fp2)
-            
-
-    #         # initialize score counter
-    #         score = 0
-
-    #         # check if fingerprint is same
-    #         is_same = mf.check_name(db_array[i][0], db_array[j][0])
-
-    #         # find order of index to scan
-    #         index = mf.find_next_index(array, index_array)
-
-    #         # calculate score
-    #         for k in range(len(index_array)):
-    #             # TODO: make score value into a gradient instead of boolean
-    #             # work on the flag return value of find_match
-    #             score += mf.find_match(array, index[k], T1, T2, dist_type)
-            
-    #         percentage = score/denom * 100
-    #         # results.append([is_same, percentage])
-    #         similarity_array.append([is_same, percentage])
-
-    # return similarity_array
-
-    # # incomplete
-    # # TODO: may wanna complete this
-    # import generatefeatures as gf
-    # def balanced_dataset_generator(db_array, T1, T2, seed_count = 3):
-    #     # split db_array into fingerprint_count number of arrays of size impression_count
-    #     # call match function on each array
-    #     new_db_array = gf.generatefeatures(db_array, seed_count)
-    #     similarity_array = []
-    #     for i in range(fingerprint_count):
-    #         temp_array = []
-    #         for j in range(impression_count):
-    #             temp_array.append(db_array[i*impression_count + j])
-    #         similarity_array.append(match(temp_array, T1, T2))
