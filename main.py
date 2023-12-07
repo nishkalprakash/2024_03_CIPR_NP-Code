@@ -18,8 +18,8 @@ from multiprocessing.pool import Pool
 
 def compute_eer(t1_t2_fea_dt_dst):
     t1, t2, fea, denom_type, dist_type = t1_t2_fea_dt_dst
-    tr_arr,fa_arr,tr_pairs,fa_pairs = mc.match(fea, t1, t2, denom_type, dist_type)
-    return tt.calculate_far_frr_score(t1, t2,tr_arr,fa_arr) # def gr = 0.1
+    tr_arr_dict,fa_arr_dict = mc.match(fea, t1, t2, denom_type, dist_type)
+    return tt.calculate_far_frr_score(t1, t2,list(tr_arr_dict.values()),list(fa_arr_dict.values())) # def gr = 0.1
 
 def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=False):
     out_file = Path(f"eer_T1[{T1[0]},{T1[1]},{T1[2]}]_T2[{T2[0]},{T2[1]},{T2[2]}]_{denom_type}_{dist_type}.csv")
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     T2_range = (0.01,0.13,0.01)
     # gr = 0.1
     denom_type = ['average', 'geometric', 'harmonic', 'min']
-    dist_type = ['euclidean_norm','euclidian_log_norm']
+    dist_type = ['euclidean_norm','euclidean_log_norm','euclidean_log_norm_hack']
     # TODO: add these dist measures as well ['manhattan', 'cosine', 'minkowski']
     debug = True
     # debug = False

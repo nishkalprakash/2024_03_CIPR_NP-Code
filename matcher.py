@@ -59,7 +59,7 @@ def get_imposter(test_dict,n_finger_per_person=1):
             imposter_dict[k]=v
         yield imposter_dict
 
-def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm', n_finger_per_person = 1):
+def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm', n_finger_per_person = 10):
     """
     Calculate the similarity scores between fingerprints in the given database array.
     The genuine and imposter pairs are generated here.
@@ -68,7 +68,7 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
         T1 (float): The first threshold value for alpha for matching.
         T2 (float): The second threshold value for thetha for matching.
         denom_type (str, optional): The type of matching to be performed. Can be one of 'harmonic', 'average', 'min', or 'geometric'. Defaults to 'min'.
-        dist_type (str, optional): The type of distance to be used. Can be one of 'euclidean_norm' or 'euclidian_log_norm'. Defaults to 'euclidian_log_norm'.
+        dist_type (str, optional): The type of distance to be used. Can be one of 'euclidean_norm' or 'euclidean_log_norm'. Defaults to 'euclidian_log_norm'.
     Returns:
         list: The similarity array containing the scores and flags for each pair of fingerprints.
     """
