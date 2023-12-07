@@ -105,6 +105,7 @@ def get_match_score_at_index(index, array, t1, t2, dist_type='euclidean_norm'):
             if thetas_within_thresh(match_index):
                 update_flags(match_index)
                 return get_row_match_score(match_index)
+                # return 1
             # else the loop continues to find_next_index to match with
     # No match found within the threshold, update current index and proceed
     update_flags(match_index)

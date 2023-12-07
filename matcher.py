@@ -7,9 +7,57 @@ import numpy as np
 from pathlib import Path
 from itertools import combinations
 
-def  get_finger_id(name):
+def  get_impression_id(name):
+    # splits the path by '_' and returns the last 2 value
+    s=Path(name).stem.split('_')
+    return tuple(map(int,s[-2:]))
+
+def  get_finger_id_by_path(name):
     # splits the path by '_' and returns the 2nd last value
     return int(Path(name).stem.split('_')[-2])
+
+def get_fin_imp_fea_dict(db_array):
+    """
+    Output:
+        {
+            1:{
+                (1,1): [[alpha,thetas...],[],...]
+                (1,2): [[alpha,thetas...],[],...]
+            }
+            10:{
+                (10,1): [[alpha,thetas...],[],...]
+                (10,2): [[alpha,thetas...],[],...]
+            }
+        }
+    """
+    fin_imp_fea_dict = {}
+    for path,fv in db_array:
+        imp_id=get_impression_id(path)
+        fin_id=imp_id[0]
+        try:
+            fin_imp_fea_dict[fin_id][imp_id]=fv
+        except KeyError:
+            fin_imp_fea_dict[fin_id]={imp_id:fv}
+    return fin_imp_fea_dict
+
+def nC2(imp_fea_dict):
+        for fea_pair in combinations(imp_fea_dict.items(),2):
+            yield dict(fea_pair)
+
+def chain(arrs,func=nC2):
+    for arr in arrs:
+        if func is None:
+            yield from arr
+        else:
+            yield from func(arr)
+
+def get_imposter(test_dict,n_finger_per_person=1):
+    for i in range(n_finger_per_person):
+        imposter_dict = {}
+        for value in test_dict.values():
+            k,v=list(value.items())[i]
+            imposter_dict[k]=v
+        yield imposter_dict
 
 def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm', n_finger_per_person = 1):
     """
@@ -29,32 +77,15 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
     # score is percentage matching of two vector arrays
     # flag is True if instance of same fingerprint, false otherwise
     # DONE: Update genuine pairs logic, imposter pair logic...
-    person_feature_dict = {}
-    for path,fv in db_array:
-        id=get_finger_id(path)
-        try:
-            person_feature_dict[id].append(fv)
-        except KeyError:
-            person_feature_dict[id]=[fv]
-
-    def nC2(fvs):
-        for pair in combinations(fvs,2):
-            yield pair
-
-    def chain(arrs,func=nC2):
-        for arr in arrs:
-            if func is None:
-                yield from arr
-            else:
-                yield from nC2(arr)
-
-    def get_imposter(n_finger_per_person=1):
-        for i in range(n_finger_per_person):
-            yield (fp[i] for fp in person_feature_dict.values())
     
-    genine_pairs = chain(person_feature_dict.values())
+
+    fin_imp_fea_dict = get_fin_imp_fea_dict(db_array)
+
+
+    
+    genine_pairs = chain(fin_imp_fea_dict.values())
     n_finger_per_person = 10
-    imposter_pairs = chain(get_imposter(n_finger_per_person))
+    imposter_pairs = chain(get_imposter(fin_imp_fea_dict,n_finger_per_person))
 
     def get_denom(l1,l2,denom_type=denom_type):
         if denom_type == 'average':
@@ -69,7 +100,7 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
             raise Exception("Invalid denom_type, please enter one of {average, geometric, harmonic, min}")
     
     def get_score(pair):
-        fp1,fp2 = pair
+        fp1,fp2 = pair.values()
         l1,l2 = len(fp1),len(fp2)
         comb_arr = sorted(
             chain([
@@ -89,8 +120,17 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
             score+=sc
 
         percentage = (score / get_denom(l1,l2)) * 100
-        return percentage
+        return tuple(pair.keys()),percentage
 
-    tr_arr = sorted(get_score(pair) for pair in genine_pairs)
-    fa_arr = sorted(get_score(pair) for pair in imposter_pairs)
-    return tr_arr, fa_arr, list(genine_pairs), list(imposter_pairs)
+    tr_arr, fa_arr = {},{}
+    for pair in genine_pairs:
+        k,v=get_score(pair)
+        tr_arr[k]=v
+    
+    for pair in imposter_pairs:
+        k,v=get_score(pair)
+        fa_arr[k]=v
+
+    # tr_arr = sorted(get_score(pair) for pair in genine_pairs)
+    # fa_arr = sorted(get_score(pair) for pair in imposter_pairs)
+    return tr_arr, fa_arr
