@@ -18,7 +18,7 @@ from multiprocessing.pool import Pool
 
 def compute_eer(t1_t2_fea_dt_dst):
     t1, t2, fea, denom_type, dist_type = t1_t2_fea_dt_dst
-    tr_arr,fa_arr = mc.match(fea, t1, t2, denom_type, dist_type)
+    tr_arr,fa_arr,tr_pairs,fa_pairs = mc.match(fea, t1, t2, denom_type, dist_type)
     return tt.calculate_far_frr_score(t1, t2,tr_arr,fa_arr) # def gr = 0.1
 
 def calc_eer(T1,T2,fea,denom_type='harmonic', dist_type='euclidean_norm',debug=False):
@@ -80,12 +80,10 @@ if __name__ == '__main__':
     dist_type = ['euclidean_norm','euclidian_log_norm']
     # TODO: add these dist measures as well ['manhattan', 'cosine', 'minkowski']
     debug = True
-    debug = False
+    # debug = False
 
     # for dt in denom_type:
     #     for dst in dist_type:
-    #         # if (dt,dst) == ('harmonic','euclidean_norm'):
-    #         #     continue
     #         calc_eer(T1_range,T2_range,fea,dt,dst)
              
     calc_eer(T1_range,T2_range,fea,denom_type[2], dist_type[0],debug)

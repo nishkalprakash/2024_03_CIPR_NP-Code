@@ -93,4 +93,4 @@ def match(db_array, T1, T2, denom_type = 'harmonic', dist_type = 'euclidean_norm
 
     tr_arr = sorted(get_score(pair) for pair in genine_pairs)
     fa_arr = sorted(get_score(pair) for pair in imposter_pairs)
-    return tr_arr, fa_arr
+    return tr_arr, fa_arr, list(genine_pairs), list(imposter_pairs)
