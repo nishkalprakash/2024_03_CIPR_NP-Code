@@ -50,12 +50,12 @@ def get_match_score_at_index(index, array, t1, t2, dist_type='euclidean_norm'):
         r2=array[r2_index]
         theta_part = 0
         if dist_type == 'euclidean_norm':
-            alpha_part = np.sqrt((r1[1] - r2[1]) ** 2) / t1
+            alpha_part = diff(r1[1], r2[1]) / t1
         elif dist_type == 'euclidean_log_norm':
             # here the alpha part gets a inverse weightage based on the distance from 0, so values close to 0 gets a higher weightage
-            alpha_part = (np.sqrt((r1[1] - r2[1]) ** 2) / t1) * 1 / np.sqrt(1 + abs(r1[1]) + abs(r2[1]))
+            alpha_part = (diff(r1[1], r2[1]) / t1) * 1 / np.sqrt(1 + abs(r1[1]) + abs(r2[1]))
         elif dist_type == 'euclidean_log_norm_hack':
-            alpha_part = (np.sqrt((r1[1] - r2[1]) ** 2) / t1) * 1 / (1 + abs(r1[1]) + abs(r2[1]))**0.2
+            alpha_part = (diff(r1[1], r2[1]) / t1) * 1 / (1 + abs(r1[1]) + abs(r2[1]))**0.2
         else:
             raise Exception("Invalid dist_type, please enter one of {euclidean_norm, euclidean_log_norm, euclidean_log_norm_hack}")
         theta_part = np.sqrt((r1[2] - r2[2]) ** 2 + (r1[3] - r2[3]) ** 2 + (r1[4] - r2[4]) ** 2) / (1.7321 * t2)
